@@ -1,15 +1,37 @@
 import dotenv from "dotenv";
+import { z } from "zod";
 
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
+dotenv.config({
+  path: ".env.development.local",
+});
+
+const envSchema = z.object({
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
+
+  PORT: z.coerce.number().int().positive().default(5000),
+
+  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+
+  JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
+
+  JWT_EXPIRES_IN: z.string().default("1d"),
+});
+
+const parsedEnv = envSchema.safeParse(process.env);
+
+if (!parsedEnv.success) {
+  console.error("Invalid environment variables:");
+
+  for (const issue of parsedEnv.error.issues) {
+    console.error(`- ${issue.path.join(".")}: ${issue.message}`);
+  }
+
+  process.exit(1);
 }
 
-export const NODE_ENV = process.env.NODE_ENV || "development";
+export type Env = z.infer<typeof envSchema>;
+export const env = Object.freeze(parsedEnv.data);
 
-export const PORT = process.env.PORT || "5000";
-
-export const MONGO_URI = process.env.MONGO_URI;
-
-export const JWT_SECRET = process.env.JWT_SECRET;
-
-export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1d";
+export const { NODE_ENV, PORT, DATABASE_URL, JWT_SECRET, JWT_EXPIRES_IN } = env;
