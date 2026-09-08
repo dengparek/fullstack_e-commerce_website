@@ -1,25 +1,37 @@
-const mongoose = require("mongoose");
-import { NODE_ENV, MONGO_URI } from "../config/env";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
-export const connectDB = async () => {
-  if (!MONGO_URI) {
-    console.error("MONGO_URI is not defined in the environment variables");
+import { DATABASE_URL, NODE_ENV } from "../config/env";
+import * as schema from "./schema";
+
+export const pool = new Pool({
+  connectionString: DATABASE_URL,
+  max: 20, // Maximum pool connections
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
+  ssl: NODE_ENV === "production" ? { rejectUnauthorized: true } : false,
+});
+
+export const db = drizzle(pool, { schema });
+
+export const connectDB = async (): Promise<void> => {
+  try {
+    const client = await pool.connect();
+    await client.query("SELECT 1");
+    client.release();
+    console.log(" PostgreSQL connected successfully");
+  } catch (error) {
+    console.error("Failed to connect to PostgreSQL:", error);
     process.exit(1);
   }
-  if (mongoose.connection.readyState === 1) {
-    return;
-  }
-
-  try {
-    await mongoose.connect(MONGO_URI, {
-      dbName:
-        NODE_ENV === "production" ? "sub_tracker__prod" : "sub_tracker__dev",
-      autoIndex: NODE_ENV !== "production",
-    });
-
-    console.log(`MongoDB connected in (${NODE_ENV}) mode`);
-  } catch (error) {
-    console.error("MongoDB connection failed:", error);
-    throw error;
-  }
 };
+
+// Handle graceful shutdown for process signals
+const closePool = async () => {
+  console.log("Closing database connection pool...");
+  await pool.end();
+  process.exit(0);
+};
+
+process.on("SIGINT", closePool);
+process.on("SIGTERM", closePool);
