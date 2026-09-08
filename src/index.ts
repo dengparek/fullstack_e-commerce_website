@@ -2,8 +2,14 @@ const express = require("express");
 import productRoutes from "./routes/productRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import authRoutes from "./routes/authRoutes";
+import { urlencoded } from "express";
 
 export const app = express();
+
+// missleware
+app.use(urlencoded({ extended: true }));
+app.use(express.json());
+
 const port = 3000;
 
 app.use("/api/v1/products", productRoutes);
