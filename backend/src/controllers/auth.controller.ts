@@ -1,15 +1,14 @@
 import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 
-import { registerSchema } from "../validations/auth.validation";
-import { registerUser } from "../services/auth.service";
+import { registerUser, loginUser } from "../services/auth.service";
+import { registerSchema, loginSchema } from "../validations/auth.validation";
 
 export const register = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> => {
-  // 1. Validate Input
   const validationResult = registerSchema.safeParse(req.body);
 
   if (!validationResult.success) {
@@ -22,17 +21,14 @@ export const register = async (
   }
 
   try {
-    // 2. Execute Business Logic
     const result = await registerUser(validationResult.data);
 
-    // 3. Respond
     res.status(201).json({
       success: true,
       message: "User registered successfully",
       data: result,
     });
   } catch (error: any) {
-    // Check if custom status exists on error object or fallback to message check
     if (
       error?.statusCode === 409 ||
       error?.message === "Email is already registered"
@@ -44,7 +40,54 @@ export const register = async (
       return;
     }
 
-    // Forward unexpected errors to global Express error handler
+    next(error);
+  }
+};
+
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const validationResult = loginSchema.safeParse(req.body);
+
+  if (!validationResult.success) {
+    res.status(400).json({
+      success: false,
+      message: "Invalid login data",
+      errors: z.treeifyError(validationResult.error),
+    });
+    return;
+  }
+
+  try {
+    const result = await loginUser(validationResult.data);
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: result,
+    });
+  } catch (error: any) {
+    if (
+      error?.statusCode === 401 ||
+      error?.message === "Invalid email or password"
+    ) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+      return;
+    }
+
+    if (error?.statusCode === 403 || error?.message === "Account is inactive") {
+      res.status(403).json({
+        success: false,
+        message: "Account is inactive",
+      });
+      return;
+    }
+
     next(error);
   }
 };
