@@ -1,11 +1,14 @@
 import { eq } from "drizzle-orm";
 
+import { hashPassword, verifyPassword } from "../utils/password";
+
+import type { LoginInput } from "../validations/auth.validation";
+
 import { db } from "../database/db";
 import { users } from "../database/schema/users";
-import { hashPassword } from "../utils/password";
 import { generateAccessToken } from "../utils/tokens";
 
-import type { RegisterResult } from "../types/auth";
+import type { LoginResult, RegisterResult } from "../types/auth";
 import type { RegisterInput } from "../validations/auth.validation";
 
 // Optional: Lightweight custom error classes for clean HTTP mapping
@@ -73,4 +76,53 @@ export const registerUser = async (
     }
     throw error;
   }
+};
+
+export const loginUser = async (input: LoginInput): Promise<LoginResult> => {
+  const normalizedEmail = input.email.trim().toLowerCase();
+
+  const [user] = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      passwordHash: users.passwordHash,
+      role: users.role,
+      isActive: users.isActive,
+    })
+    .from(users)
+    .where(eq(users.email, normalizedEmail))
+    .limit(1);
+
+  if (!user) {
+    throw new Error("Invalid email or password");
+  }
+
+  if (!user.isActive) {
+    throw new Error("Account is inactive");
+  }
+
+  const passwordIsValid = await verifyPassword(
+    input.password,
+    user.passwordHash,
+  );
+
+  if (!passwordIsValid) {
+    throw new Error("Invalid email or password");
+  }
+
+  const accessToken = generateAccessToken({
+    sub: user.id,
+    role: user.role,
+  });
+
+  return {
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    accessToken,
+  };
 };
