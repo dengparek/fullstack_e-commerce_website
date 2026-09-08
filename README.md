@@ -1,39 +1,26 @@
 # Full-Stack E-Commerce Website
 
-A full-stack e-commerce application built with a modern TypeScript-based stack. The project is organized as a monorepo containing a RESTful backend API and a React frontend.
+A complete full-stack e-commerce web application built with React, TypeScript, Vite, Node.js, Express, PostgreSQL, and Drizzle ORM.
 
-## Project Structure
+The project is structured as a monorepo containing a React frontend and a RESTful backend API. The frontend provides the customer-facing shopping experience, while the backend handles authentication, products, orders, cart operations, database access, and API security.
 
-```text
-fullstack_e-commerce_website/
-│
-├── backend/          # REST API
-│   ├── src/
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── ...
-│
-├── frontend/         # React + Vite application
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── ...
-│
-└── README.md
-```
+## Features
 
-## Tech Stack
+- User registration and authentication
+- Secure API authentication and protected endpoints
+- Product management and product browsing
+- Shopping cart management
+- Order creation and management
+- RESTful API architecture
+- PostgreSQL database integration
+- Type-safe database operations with Drizzle ORM
+- Modular backend architecture
+- React-based frontend
+- Responsive user interface
+- Client-server separation
+- Environment-based configuration
 
-### Backend
-
-- Node.js
-- Express.js
-- TypeScript
-- PostgreSQL
-- Drizzle ORM
-- REST API
-- JWT-based authentication
-- Modular architecture
+## Technology Stack
 
 ### Frontend
 
@@ -41,78 +28,122 @@ fullstack_e-commerce_website/
 - TypeScript
 - Vite
 - ESLint
-- Modern React development workflow
 
-## Features
+### Backend
 
-### Backend API
+- Node.js
+- Express.js
+- TypeScript
+- Drizzle ORM
+- PostgreSQL
 
-The backend provides the server-side functionality for the e-commerce application, including:
+### Development
 
-- User authentication
-- Product management
-- Order management
-- Cart functionality
-- Protected API endpoints
-- Request validation
-- Database operations
-- Modular controllers and routes
-- Error handling
-
-### Frontend
-
-The frontend provides the user interface for interacting with the e-commerce platform.
-
-It is built with React and Vite and is designed to communicate with the backend through its REST API.
-
-The frontend and backend are maintained as separate applications within the same repository, allowing them to be developed and deployed independently.
+- npm
+- Git
+- GitHub
 
 ## Architecture
 
-The application follows a client-server architecture:
+The application uses a client-server architecture.
 
 ```text
-┌──────────────────────┐
-│      Frontend        │
-│                      │
-│ React + TypeScript   │
-│       + Vite         │
-└──────────┬───────────┘
-           │
-           │ REST API
-           ▼
-┌──────────────────────┐
-│       Backend        │
-│                      │
-│ Node.js + Express    │
-│     + TypeScript     │
-└──────────┬───────────┘
-           │
-           │ Drizzle ORM
-           ▼
-┌──────────────────────┐
-│      PostgreSQL      │
-└──────────────────────┘
+┌──────────────────────────────────────┐
+│              Frontend                │
+│                                      │
+│       React + TypeScript + Vite      │
+│                                      │
+│     Customer-facing web interface    │
+└──────────────────┬───────────────────┘
+                   │
+                   │ HTTP / REST API
+                   ▼
+┌──────────────────────────────────────┐
+│               Backend                │
+│                                      │
+│       Node.js + Express + TS         │
+│                                      │
+│ Authentication │ Products │ Orders  │
+│      Cart      │ API Security       │
+└──────────────────┬───────────────────┘
+                   │
+                   │ Drizzle ORM
+                   ▼
+┌──────────────────────────────────────┐
+│             PostgreSQL               │
+│                                      │
+│          Application Data            │
+└──────────────────────────────────────┘
 ```
+
+## Repository Structure
+
+```text
+fullstack_e-commerce_website/
+│
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   └── routes/
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── ...
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── ...
+│
+└── README.md
+```
+
+## Backend
+
+The backend is a RESTful API built with Node.js, Express, and TypeScript.
+
+It is responsible for the application's server-side operations, including:
+
+- Authentication
+- User management
+- Product operations
+- Cart operations
+- Order operations
+- Database access
+- API request handling
+- Protected endpoints
+
+The backend uses PostgreSQL for persistent data storage and Drizzle ORM for type-safe database interaction.
+
+## Frontend
+
+The frontend is a React application built with TypeScript and Vite.
+
+It provides the web interface through which users interact with the e-commerce platform, including browsing products, managing their cart, and interacting with the ordering system.
+
+The frontend communicates with the backend through its REST API.
 
 ## Getting Started
 
 ### Prerequisites
 
-Make sure you have installed:
+Make sure the following are installed:
 
 - Node.js
 - npm
 - PostgreSQL
 
-Clone the repository:
+### Clone the Repository
 
 ```bash
 git clone https://github.com/dengparek/fullstack_e-commerce_website.git
+
 cd fullstack_e-commerce_website
 ```
 
-## Backend Setup
+### Backend Setup
 
 Navigate to the backend:
 
@@ -126,19 +157,17 @@ Install dependencies:
 npm install
 ```
 
-Create your environment configuration based on the example environment file provided in the backend.
+Configure the required environment variables using the example environment configuration provided in the backend.
 
-Then start the development server:
+Start the backend development server:
 
 ```bash
 npm run dev
 ```
 
-The backend API will run according to the port configured in your environment variables.
+### Frontend Setup
 
-## Frontend Setup
-
-Open another terminal and navigate to the frontend:
+Open a new terminal and navigate to the frontend:
 
 ```bash
 cd frontend
@@ -156,53 +185,61 @@ Start the Vite development server:
 npm run dev
 ```
 
-Vite will provide the local development URL in the terminal.
+The Vite development server will provide the local URL in the terminal.
 
-## Development
+## Environment Configuration
 
-The backend and frontend are independent applications.
+Environment-specific configuration is kept outside the source code.
 
-Run the backend from:
-
-```text
-/backend
-```
-
-and the frontend from:
-
-```text
-/frontend
-```
-
-During development, the frontend communicates with the backend through the configured API URL.
-
-## Environment Variables
-
-Environment-specific configuration should be stored in local environment files and should **not** be committed to the repository.
-
-The backend requires environment variables for things such as:
+The backend requires configuration for items such as:
 
 - Database connection
-- Authentication configuration
-- Application port
-- Other server-side configuration
+- Server configuration
+- Authentication
+- Application environment
 
-Refer to the environment example file inside the `backend` directory for the required variables.
+Use the environment example file inside the `backend` directory as a reference for the required variables.
+
+**Never commit real credentials, database passwords, API keys, or other secrets to GitHub.**
 
 ## API
 
-The backend exposes RESTful endpoints for the application's core functionality, including authentication, products, orders, and cart operations.
+The backend exposes RESTful endpoints used by the frontend.
 
-The API is designed to be consumed by the React frontend and can also be used independently by other clients.
+The API is organized around the application's main resources, including:
 
-## Project Status
+- Authentication
+- Users
+- Products
+- Orders
+- Cart
 
-This project is actively being developed.
+The API is independently structured from the frontend, allowing the backend to serve other clients in addition to the React application.
 
-The backend API and frontend application are being developed together as a full-stack e-commerce platform, with additional features and improvements being added over time.
+## Project Design
+
+The project separates the application into two independent layers:
+
+**Frontend**
+
+Handles the user interface and client-side interaction.
+
+**Backend**
+
+Handles business logic, authentication, API requests, and database operations.
+
+**Database**
+
+Stores persistent application data using PostgreSQL.
+
+This separation makes the application easier to maintain, test, and deploy.
+
+## License
+
+This project is licensed under the MIT License.
 
 ## Author
 
 **Deng Parek**
 
-GitHub: [@dengparek](https://github.com/dengparek)
+GitHub: https://github.com/dengparek
