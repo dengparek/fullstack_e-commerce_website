@@ -7,7 +7,7 @@
   "type": "commonjs",
   "main": "src/index.js",
   "scripts": {
-    "dev": "node --import=tsx --watch --env-file=.env src/index.ts",
+    "dev": "node --import=tsx --watch --env-file=.env.development.local src/index.ts",
     "build": "tsc",
     "start": "tsx watch src/index.ts",
     "db:generate": "drizzle-kit generate",
@@ -15,9 +15,14 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@types/cors": "^2.8.19",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
+    "mongoose": "^9.9.5",
     "pg": "^8.23.0"
   },
   "devDependencies": {
