@@ -1,8 +1,16 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction, CookieOptions } from "express";
 import { z } from "zod";
 
 import { registerUser, loginUser } from "../services/auth.service";
 import { registerSchema, loginSchema } from "../validations/auth.validation";
+
+const refreshTokenCookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  path: "/api/auth",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
 
 export const register = async (
   req: Request,
@@ -61,7 +69,14 @@ export const login = async (
   }
 
   try {
-    const result = await loginUser(validationResult.data);
+    const result = await loginUser(
+      validationResult.data,
+      req.get("user-agent"),
+      req.ip,
+    );
+
+    res.cookie("refreshToken", result.refreshToken, refreshTokenCookieOptions);
+    const { refreshToken: _refreshToken, ...loginData } = result;
 
     res.status(200).json({
       success: true,
