@@ -14,3 +14,13 @@ export interface AccessTokenPayload {
   iat?: number;
   exp?: number;
 }
+
+export interface RegisterResult {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+  };
+  accessToken: string;
+}
