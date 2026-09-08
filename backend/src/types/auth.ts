@@ -24,3 +24,13 @@ export interface RegisterResult {
   };
   accessToken: string;
 }
+
+export interface LoginResult {
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+  };
+  accessToken: string;
+}
