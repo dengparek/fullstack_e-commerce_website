@@ -1,14 +1,12 @@
-import express, {
-  type Request,
-  type Response,
-  type NextFunction,
-} from "express";
+import type { Request, Response, NextFunction } from "express";
+import express from "express";
 import cors from "cors";
 // const cookieParser = require("cookie-parser");
 import cookieParser from "cookie-parser";
 
 import { connectDB, pool } from "./database/db";
 import { NODE_ENV, PORT } from "./config/env";
+import authRouter from "./routes/auth.routes";
 
 export const app = express();
 
@@ -23,6 +21,8 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/auth", authRouter);
 
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {
