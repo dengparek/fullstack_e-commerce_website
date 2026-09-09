@@ -74,8 +74,49 @@ export const rotateRefreshToken = async (
   userId: string,
   userAgent: string | undefined,
   ipAddress: string | undefined,
-): Promise<string> => {
-  // Revoke previous token and issue a fresh token atomically
-  await revokeRefreshToken(oldRawToken);
-  return createRefreshToken(userId, userAgent, ipAddress);
+): Promise<string | null> => {
+  const oldTokenHash = hashRefreshToken(oldRawToken);
+
+  return db.transaction(async (tx) => {
+    const now = new Date();
+
+    const [oldToken] = await tx
+      .update(refreshTokens)
+      .set({
+        isRevoked: true,
+        updatedAt: now,
+      })
+      .where(
+        and(
+          eq(refreshTokens.tokenHash, oldTokenHash),
+          eq(refreshTokens.userId, userId),
+          eq(refreshTokens.isRevoked, false),
+          gt(refreshTokens.expiresAt, now),
+        ),
+      )
+      .returning({
+        id: refreshTokens.id,
+      });
+
+    if (!oldToken) {
+      return null;
+    }
+
+    const newRawToken = generateRefreshToken();
+    const newTokenHash = hashRefreshToken(newRawToken);
+
+    const expiresAt = new Date(
+      now.getTime() + REFRESH_TOKEN_EXPIRES_DAYS * 24 * 60 * 60 * 1000,
+    );
+
+    await tx.insert(refreshTokens).values({
+      userId,
+      tokenHash: newTokenHash,
+      userAgent: userAgent ?? null,
+      ipAddress: ipAddress ?? null,
+      expiresAt,
+    });
+
+    return newRawToken;
+  });
 };

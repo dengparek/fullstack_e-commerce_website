@@ -9,9 +9,9 @@ import { users } from "../database/schema";
 import { eq } from "drizzle-orm";
 import { db } from "../database/db";
 import {
-  createRefreshToken,
   findValidRefreshToken,
   revokeRefreshToken,
+  rotateRefreshToken,
 } from "../services/refresh-token.service";
 
 export const register = async (
@@ -155,14 +155,20 @@ export const refresh = async (
       return;
     }
 
-    // Revoke old token and issue a fresh pair
-    await revokeRefreshToken(refreshToken);
-
-    const newRefreshToken = await createRefreshToken(
-      user.id,
+    const newRefreshToken = await rotateRefreshToken(
+      refreshToken,
+      storedToken.userId,
       req.get("user-agent"),
       req.ip,
     );
+
+    if (!newRefreshToken) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid or expired refresh token",
+      });
+      return;
+    }
 
     const accessToken = generateAccessToken({
       sub: user.id,
