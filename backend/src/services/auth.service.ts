@@ -6,10 +6,11 @@ import type { LoginInput } from "../validations/auth.validation";
 
 import { db } from "../database/db";
 import { users } from "../database/schema/users";
-import { generateAccessToken } from "../utils/tokens";
+import { generateAccessToken } from "../utils/access-tokens";
 
 import type { LoginResult, RegisterResult } from "../types/auth";
 import type { RegisterInput } from "../validations/auth.validation";
+import { createRefreshToken } from "./refresh-token.service";
 
 // Optional: Lightweight custom error classes for clean HTTP mapping
 export class ConflictError extends Error {
@@ -78,7 +79,11 @@ export const registerUser = async (
   }
 };
 
-export const loginUser = async (input: LoginInput): Promise<LoginResult> => {
+export const loginUser = async (
+  input: LoginInput,
+  userAgent: string | undefined,
+  ipAddress: string | undefined,
+): Promise<LoginResult> => {
   const normalizedEmail = input.email.trim().toLowerCase();
 
   const [user] = await db
@@ -116,6 +121,8 @@ export const loginUser = async (input: LoginInput): Promise<LoginResult> => {
     role: user.role,
   });
 
+  const refreshToken = await createRefreshToken(user.id, userAgent, ipAddress);
+
   return {
     user: {
       id: user.id,
@@ -124,5 +131,6 @@ export const loginUser = async (input: LoginInput): Promise<LoginResult> => {
       role: user.role,
     },
     accessToken,
+    refreshToken,
   };
 };
