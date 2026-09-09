@@ -8,7 +8,11 @@ import { generateAccessToken } from "../utils/access-tokens";
 import { users } from "../database/schema";
 import { eq } from "drizzle-orm";
 import { db } from "../database/db";
-import { findValidRefreshToken } from "../services/refresh-token.service";
+import {
+  createRefreshToken,
+  findValidRefreshToken,
+  revokeRefreshToken,
+} from "../services/refresh-token.service";
 
 export const register = async (
   req: Request,
@@ -105,15 +109,18 @@ export const login = async (
   }
 };
 
-export const refresh = async (req: Request, res: Response): Promise<void> => {
-  const refreshToken = req.cookies.refreshToken as string | undefined;
+export const refresh = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const refreshToken = req.cookies?.refreshToken as string | undefined;
 
   if (!refreshToken) {
     res.status(401).json({
       success: false,
       message: "Refresh token is required",
     });
-
     return;
   }
 
@@ -121,11 +128,11 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
     const storedToken = await findValidRefreshToken(refreshToken);
 
     if (!storedToken) {
+      res.clearCookie("refreshToken", refreshTokenCookieOptions);
       res.status(401).json({
         success: false,
         message: "Invalid or expired refresh token",
       });
-
       return;
     }
 
@@ -140,18 +147,29 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
       .limit(1);
 
     if (!user || !user.isActive) {
+      res.clearCookie("refreshToken", refreshTokenCookieOptions);
       res.status(401).json({
         success: false,
-        message: "Invalid refresh token",
+        message: "Invalid or inactive account",
       });
-
       return;
     }
+
+    // Revoke old token and issue a fresh pair
+    await revokeRefreshToken(refreshToken);
+
+    const newRefreshToken = await createRefreshToken(
+      user.id,
+      req.get("user-agent"),
+      req.ip,
+    );
 
     const accessToken = generateAccessToken({
       sub: user.id,
       role: user.role,
     });
+
+    res.cookie("refreshToken", newRefreshToken, refreshTokenCookieOptions);
 
     res.status(200).json({
       success: true,
@@ -161,11 +179,6 @@ export const refresh = async (req: Request, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    console.error("Refresh token error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to refresh access token",
-    });
+    next(error);
   }
 };
