@@ -48,7 +48,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 // Catch-all 404 Handler for undefined routes
-app.use("*", (_req, _res, next) => {
+app.use((_req, _res, next) => {
   next(AppError.notFound("Requested API route does not exist"));
 });
 
