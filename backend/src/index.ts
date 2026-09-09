@@ -1,12 +1,14 @@
 import type { Request, Response, NextFunction } from "express";
 import express from "express";
 import cors from "cors";
-// const cookieParser = require("cookie-parser");
 import cookieParser from "cookie-parser";
 
 import { connectDB, pool } from "./database/db";
 import { NODE_ENV, PORT } from "./config/env";
 import authRouter from "./routes/auth.routes";
+import { AppError } from "./utils/app-error";
+import { errorHandler } from "./middleware/error.middleware";
+import userRouter from "./routes/user.routes";
 
 export const app = express();
 
@@ -23,6 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {
@@ -42,17 +45,13 @@ app.use((_req: Request, res: Response) => {
   });
 });
 
-// Global Error Handling Middleware
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error("Unhandled Error:", err);
-  res.status(500).json({
-    success: false,
-    message:
-      NODE_ENV === "production"
-        ? "Internal Server Error"
-        : err.message || "Something went wrong",
-  });
+// Catch-all 404 Handler for undefined routes
+app.use("*", (_req, _res, next) => {
+  next(AppError.notFound("Requested API route does not exist"));
 });
+
+// Global Error Handler (MUST be the last app.use call)
+app.use(errorHandler);
 
 const startServer = async (): Promise<void> => {
   try {
