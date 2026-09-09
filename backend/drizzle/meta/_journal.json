@@ -8,6 +8,13 @@
       "when": 1788876764739,
       "tag": "0000_open_meltdown",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788982012416,
+      "tag": "0001_tan_gargoyle",
+      "breakpoints": true
     }
   ]
 }
