@@ -1,16 +1,14 @@
-import type { Request, Response, NextFunction, CookieOptions } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { z } from "zod";
 
 import { registerUser, loginUser } from "../services/auth.service";
 import { registerSchema, loginSchema } from "../validations/auth.validation";
-
-const refreshTokenCookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
-  path: "/api/auth",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-};
+import { refreshTokenCookieOptions } from "../utils/refreshTokenCookieOptions";
+import { generateAccessToken } from "../utils/access-tokens";
+import { users } from "../database/schema";
+import { eq } from "drizzle-orm";
+import { db } from "../database/db";
+import { findValidRefreshToken } from "../services/refresh-token.service";
 
 export const register = async (
   req: Request,
@@ -104,5 +102,70 @@ export const login = async (
     }
 
     next(error);
+  }
+};
+
+export const refresh = async (req: Request, res: Response): Promise<void> => {
+  const refreshToken = req.cookies.refreshToken as string | undefined;
+
+  if (!refreshToken) {
+    res.status(401).json({
+      success: false,
+      message: "Refresh token is required",
+    });
+
+    return;
+  }
+
+  try {
+    const storedToken = await findValidRefreshToken(refreshToken);
+
+    if (!storedToken) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid or expired refresh token",
+      });
+
+      return;
+    }
+
+    const [user] = await db
+      .select({
+        id: users.id,
+        role: users.role,
+        isActive: users.isActive,
+      })
+      .from(users)
+      .where(eq(users.id, storedToken.userId))
+      .limit(1);
+
+    if (!user || !user.isActive) {
+      res.status(401).json({
+        success: false,
+        message: "Invalid refresh token",
+      });
+
+      return;
+    }
+
+    const accessToken = generateAccessToken({
+      sub: user.id,
+      role: user.role,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Access token refreshed successfully",
+      data: {
+        accessToken,
+      },
+    });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to refresh access token",
+    });
   }
 };
