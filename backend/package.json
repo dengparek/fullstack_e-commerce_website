@@ -12,7 +12,8 @@
     "start": "node dist/index.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "seed:admin": "tsx src/database/seed-admin.ts"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",
