@@ -9,6 +9,7 @@ import authRouter from "./routes/auth.routes";
 import { AppError } from "./utils/app-error";
 import { errorHandler } from "./middleware/error.middleware";
 import userRouter from "./routes/user.routes";
+import productRouter from "./routes/product.routes";
 
 export const app = express();
 
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/products", productRouter);
 
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {
@@ -52,6 +54,8 @@ app.use("*", (_req, _res, next) => {
 
 // Global Error Handler (MUST be the last app.use call)
 app.use(errorHandler);
+
+app.set("trust proxy", 1);
 
 const startServer = async (): Promise<void> => {
   try {
