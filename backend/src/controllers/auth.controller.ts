@@ -182,3 +182,27 @@ export const refresh = async (
     next(error);
   }
 };
+
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  const refreshToken = req.cookies?.refreshToken as string | undefined;
+
+  try {
+    if (refreshToken) {
+      await revokeRefreshToken(refreshToken);
+    }
+
+    // Always clear cookie with exact options used during cookie set
+    res.clearCookie("refreshToken", refreshTokenCookieOptions);
+
+    res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
