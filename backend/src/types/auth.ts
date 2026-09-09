@@ -33,4 +33,5 @@ export interface LoginResult {
     role: UserRole;
   };
   accessToken: string;
+  refreshToken: string;
 }
