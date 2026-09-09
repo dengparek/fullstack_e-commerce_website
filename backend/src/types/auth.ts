@@ -35,3 +35,34 @@ export interface LoginResult {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface CreateProductInput {
+  name: string;
+  sku: string;
+  description?: string | null;
+  price: number;
+  stock?: number;
+  imageUrl?: string | null;
+  isActive?: boolean;
+}
+
+export interface UpdateProductInput {
+  name?: string;
+  sku?: string;
+  description?: string | null;
+  price?: number;
+  stock?: number;
+  imageUrl?: string | null;
+  isActive?: boolean;
+}
+
+export interface ListProductsOptions {
+  page: number;
+  limit: number;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: "name" | "price" | "createdAt";
+  sortOrder?: "asc" | "desc";
+  includeInactive?: boolean;
+}

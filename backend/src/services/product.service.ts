@@ -11,40 +11,16 @@ import {
   or,
 } from "drizzle-orm";
 
+import type {
+  CreateProductInput,
+  UpdateProductInput,
+  ListProductsQueryInput,
+} from "../validations/product.validation";
+
 import { db } from "../database/db";
 import { products } from "../database/schema/products";
 import { AppError } from "../utils/app-error";
-
-export interface CreateProductInput {
-  name: string;
-  sku: string;
-  description?: string | null;
-  price: number;
-  stock?: number;
-  imageUrl?: string | null;
-  isActive?: boolean;
-}
-
-export interface UpdateProductInput {
-  name?: string;
-  sku?: string;
-  description?: string | null;
-  price?: number;
-  stock?: number;
-  imageUrl?: string | null;
-  isActive?: boolean;
-}
-
-export interface ListProductsOptions {
-  page: number;
-  limit: number;
-  search?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  sortBy?: "name" | "price" | "createdAt";
-  sortOrder?: "asc" | "desc";
-  includeInactive?: boolean;
-}
+import type { ListProductsOptions } from "../types/auth";
 
 const generateSlug = (name: string): string => {
   return name
@@ -146,7 +122,7 @@ export const getProductById = async (productId: string) => {
   const [product] = await db
     .select()
     .from(products)
-    .where(eq(products.id, productId))
+    .where(and(eq(products.id, productId), eq(products.isActive, true)))
     .limit(1);
 
   if (!product) {
@@ -155,7 +131,6 @@ export const getProductById = async (productId: string) => {
 
   return product;
 };
-
 export const getProductBySlug = async (slug: string) => {
   const [product] = await db
     .select()
@@ -170,7 +145,7 @@ export const getProductBySlug = async (slug: string) => {
   return product;
 };
 
-export const listProducts = async (options: ListProductsOptions) => {
+export const listProducts = async (options: ListProductsQueryInput) => {
   const {
     page,
     limit,
