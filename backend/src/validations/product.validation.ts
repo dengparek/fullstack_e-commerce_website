@@ -70,7 +70,7 @@ export const updateProductSchema = z
   );
 
 export const productIdParamSchema = z.object({
-  id: z.string().uuid("Invalid product ID"),
+  id: z.uuid("Invalid product ID"),
 });
 
 export const listProductsQuerySchema = z
