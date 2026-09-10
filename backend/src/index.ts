@@ -11,6 +11,7 @@ import { errorHandler } from "./middleware/error.middleware";
 import userRouter from "./routes/user.routes";
 import productRouter from "./routes/product.routes";
 import cartRouter from "./routes/cart.routes";
+import orderRouter from "./routes/order.routes";
 
 export const app = express();
 
@@ -30,6 +31,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/orders", orderRouter);
 
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {
