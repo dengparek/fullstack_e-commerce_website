@@ -10,6 +10,7 @@ import { AppError } from "./utils/app-error";
 import { errorHandler } from "./middleware/error.middleware";
 import userRouter from "./routes/user.routes";
 import productRouter from "./routes/product.routes";
+import cartRouter from "./routes/cart.routes";
 
 export const app = express();
 
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
+app.use("/api/cart", cartRouter);
 
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {
