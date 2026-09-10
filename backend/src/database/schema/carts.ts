@@ -1,38 +1,34 @@
 import { relations } from "drizzle-orm";
 import {
-  index,
   integer,
   pgTable,
   timestamp,
   unique,
   uuid,
+  index,
 } from "drizzle-orm/pg-core";
 
 import { products } from "./products";
 import { users } from "./users";
 
 // --- CARTS TABLE ---
-export const carts = pgTable(
-  "carts",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
+export const carts = pgTable("carts", {
+  id: uuid("id").defaultRandom().primaryKey(),
 
-    userId: uuid("user_id")
-      .notNull()
-      .unique()
-      .references(() => users.id, { onDelete: "cascade" }),
+  userId: uuid("user_id")
+    .notNull()
+    .unique() // Auto-creates unique index on userId; explicit index removed
+    .references(() => users.id, { onDelete: "cascade" }),
 
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 
-    updatedAt: timestamp("updated_at", { withTimezone: true })
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  },
-  (table) => [index("carts_user_id_idx").on(table.userId)],
-);
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
 
 // --- CART ITEMS TABLE ---
 export const cartItems = pgTable(
@@ -49,10 +45,20 @@ export const cartItems = pgTable(
       .references(() => products.id, { onDelete: "cascade" }),
 
     quantity: integer("quantity").notNull().default(1),
+
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (table) => [
+    // Auto-indexes (cartId, productId) and supports single cartId queries via left-prefix
     unique("cart_product_unique").on(table.cartId, table.productId),
-    index("cart_items_cart_id_idx").on(table.cartId),
+    // Keeps index on productId for fast reverse lookups (e.g. checking which carts contain a specific product)
     index("cart_items_product_id_idx").on(table.productId),
   ],
 );
