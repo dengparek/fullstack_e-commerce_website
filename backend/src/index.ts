@@ -14,6 +14,7 @@ import cartRouter from "./routes/cart.routes";
 import orderRouter from "./routes/order.routes";
 import adminOrderRouter from "./routes/admin-order.routes";
 import categoryRouter from "./routes/category.routes";
+import adminUserRouter from "./routes/admin-user.routes";
 
 export const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/categories", categoryRouter);
+app.use("/api/admin/users", adminUserRouter);
 
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {
