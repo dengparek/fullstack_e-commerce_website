@@ -6,6 +6,7 @@ import { StorefrontLayout } from "../layouts/StorefrontLayout";
 import { AdminLayout } from "../layouts/adminLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoute } from "./adminRoute";
+import { ProductDetailPage } from "../pages/ProductDetailPage";
 
 // Public pages
 const HomePage = () => (
@@ -56,7 +57,9 @@ export const AppRoutes: React.FC = () => {
       {/* Public storefront */}
       <Route path="/" element={<StorefrontLayout />}>
         <Route index element={<HomePage />} />
+        <Route index element={<CatalogPage />} />
         <Route path="products" element={<CatalogPage />} />
+        <Route path="products/:slug" element={<ProductDetailPage />} />
         <Route path="cart" element={<CartPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
