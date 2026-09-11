@@ -7,6 +7,11 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface ProductCardProps {
+  product: Product;
+  onAddToCart: (product: Product) => void;
+}
+
 export interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
 }
