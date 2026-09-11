@@ -6,3 +6,4 @@ export * from "./carts";
 export * from "./orders";
 export * from "./refresh_tokens";
 export * from "./reviews";
+export * from "./categories";

@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response } from "express";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -13,6 +13,7 @@ import productRouter from "./routes/product.routes";
 import cartRouter from "./routes/cart.routes";
 import orderRouter from "./routes/order.routes";
 import adminOrderRouter from "./routes/admin-order.routes";
+import categoryRouter from "./routes/category.routes";
 
 export const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/admin/orders", adminOrderRouter);
+app.use("/api/categories", categoryRouter);
 
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {

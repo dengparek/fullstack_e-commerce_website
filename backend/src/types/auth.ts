@@ -94,3 +94,18 @@ export interface GetAllOrdersOptions {
   status?: OrderStatus | undefined;
   paymentStatus?: PaymentStatus | undefined;
 }
+
+export interface CreateCategoryInput {
+  name: string;
+  slug: string;
+  description?: string | undefined;
+  parentId?: string | null | undefined;
+}
+
+export interface UpdateCategoryInput {
+  name?: string | undefined;
+  slug?: string | undefined;
+  description?: string | null | undefined;
+  parentId?: string | null | undefined;
+  isActive?: boolean | undefined;
+}

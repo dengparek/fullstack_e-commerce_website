@@ -9,6 +9,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { categories } from "./categories";
 
 export const products = pgTable(
   "products",
@@ -19,6 +20,9 @@ export const products = pgTable(
 
     slug: varchar("slug", { length: 220 }).notNull().unique(),
     sku: varchar("sku", { length: 100 }).notNull().unique(),
+    categoryId: uuid("category_id").references(() => categories.id, {
+      onDelete: "set null",
+    }),
 
     description: text("description"),
 
@@ -44,6 +48,7 @@ export const products = pgTable(
     // Performance indexes for catalog queries and filters
     index("products_slug_idx").on(table.slug),
     index("products_is_active_idx").on(table.isActive),
+    index("products_category_id_idx").on(table.categoryId),
   ],
 );
 

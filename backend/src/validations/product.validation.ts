@@ -53,6 +53,7 @@ const baseProductShape = {
   stock: productStockSchema,
   imageUrl: productImageUrlSchema,
   isActive: z.boolean(),
+  categoryId: z.uuid("Invalid category ID").nullable().optional(),
 };
 
 export const createProductSchema = z.object({
@@ -78,6 +79,7 @@ export const listProductsQuerySchema = z
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     search: z.string().trim().optional(),
+    categoryId: z.string().uuid("Invalid category ID format").optional(),
     minPrice: z.coerce.number().nonnegative().optional(),
     maxPrice: z.coerce.number().nonnegative().optional(),
     sortBy: z.enum(["name", "price", "createdAt"]).default("createdAt"),

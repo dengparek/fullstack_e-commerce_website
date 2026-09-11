@@ -13,23 +13,26 @@ import {
 
 import type {
   CreateProductInput,
-  UpdateProductInput,
   ListProductsQueryInput,
+  UpdateProductInput,
 } from "../validations/product.validation";
 
 import { db } from "../database/db";
-import { products } from "../database/schema/products";
+import { categories, products } from "../database/schema";
 import { AppError } from "../utils/app-error";
-import type { ListProductsOptions } from "../types/auth";
 
-const generateSlug = (name: string): string => {
-  return name
+// --------------------------------------------------
+// UTILITY FUNCTIONS
+// --------------------------------------------------
+
+const generateSlug = (name: string): string =>
+  name
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-};
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 const ensureUniqueSku = async (
   sku: string,
@@ -53,6 +56,18 @@ const ensureUniqueSku = async (
   }
 };
 
+const ensureCategoryExists = async (categoryId: string): Promise<void> => {
+  const [category] = await db
+    .select({ id: categories.id })
+    .from(categories)
+    .where(eq(categories.id, categoryId))
+    .limit(1);
+
+  if (!category) {
+    throw AppError.notFound("Category not found", "CATEGORY_NOT_FOUND");
+  }
+};
+
 const generateUniqueSlug = async (
   name: string,
   excludeProductId?: string,
@@ -68,7 +83,7 @@ const generateUniqueSlug = async (
 
   let slug = baseSlug;
   let counter = 1;
-  const maxAttempts = 100;
+  const maxAttempts = 50;
 
   while (counter <= maxAttempts) {
     const whereCondition = excludeProductId
@@ -92,37 +107,98 @@ const generateUniqueSlug = async (
   throw AppError.internal("Could not generate a unique product slug");
 };
 
+// Common SELECT columns with Category JOIN
+const productSelectFields = {
+  id: products.id,
+  name: products.name,
+  slug: products.slug,
+  sku: products.sku,
+  categoryId: products.categoryId,
+  description: products.description,
+  price: products.price,
+  stock: products.stock,
+  imageUrl: products.imageUrl,
+  isActive: products.isActive,
+  createdAt: products.createdAt,
+  updatedAt: products.updatedAt,
+
+  category: {
+    id: categories.id,
+    name: categories.name,
+    slug: categories.slug,
+  },
+};
+
+// --------------------------------------------------
+// SERVICE METHODS
+// --------------------------------------------------
+
 export const createProduct = async (input: CreateProductInput) => {
-  await ensureUniqueSku(input.sku);
+  // Validate category exists
+  if (!input.categoryId) {
+    throw AppError.badRequest(
+      "Category ID is required",
+      "CATEGORY_ID_REQUIRED",
+    );
+  }
+  const [categoryExists] = await db
+    .select({ id: categories.id })
+    .from(categories)
+    .where(eq(categories.id, input.categoryId))
+    .limit(1);
 
-  const slug = await generateUniqueSlug(input.name);
-
-  const [product] = await db
-    .insert(products)
-    .values({
-      name: input.name,
-      slug,
-      sku: input.sku,
-      description: input.description ?? null,
-      price: input.price.toFixed(2),
-      stock: input.stock ?? 0,
-      imageUrl: input.imageUrl ?? null,
-      isActive: input.isActive ?? true,
-    })
-    .returning();
-
-  if (!product) {
-    throw AppError.internal("Failed to create product");
+  if (!categoryExists) {
+    throw AppError.notFound(
+      "Selected category does not exist",
+      "CATEGORY_NOT_FOUND",
+    );
   }
 
-  return product;
+  if (input.categoryId !== undefined && input.categoryId !== null) {
+    await ensureCategoryExists(input.categoryId);
+  }
+
+  await ensureUniqueSku(input.sku);
+  const slug = await generateUniqueSlug(input.name);
+
+  try {
+    const [product] = await db
+      .insert(products)
+      .values({
+        name: input.name,
+        slug,
+        sku: input.sku,
+        categoryId: input.categoryId,
+        description: input.description ?? null,
+        price: input.price.toFixed(2),
+        stock: input.stock ?? 0,
+        imageUrl: input.imageUrl ?? null,
+        isActive: input.isActive ?? true,
+      })
+      .returning({ id: products.id });
+
+    if (!product) {
+      throw AppError.internal("Failed to create product");
+    }
+
+    return getProductById(product.id);
+  } catch (error: any) {
+    if (error?.code === "23505") {
+      throw AppError.conflict(
+        "A product with this SKU or slug already exists",
+        "PRODUCT_DUPLICATE",
+      );
+    }
+    throw error;
+  }
 };
 
 export const getProductById = async (productId: string) => {
   const [product] = await db
-    .select()
+    .select(productSelectFields)
     .from(products)
-    .where(and(eq(products.id, productId), eq(products.isActive, true)))
+    .leftJoin(categories, eq(products.categoryId, categories.id))
+    .where(eq(products.id, productId))
     .limit(1);
 
   if (!product) {
@@ -131,10 +207,12 @@ export const getProductById = async (productId: string) => {
 
   return product;
 };
+
 export const getProductBySlug = async (slug: string) => {
   const [product] = await db
-    .select()
+    .select(productSelectFields)
     .from(products)
+    .leftJoin(categories, eq(products.categoryId, categories.id))
     .where(and(eq(products.slug, slug), eq(products.isActive, true)))
     .limit(1);
 
@@ -147,9 +225,10 @@ export const getProductBySlug = async (slug: string) => {
 
 export const listProducts = async (options: ListProductsQueryInput) => {
   const {
-    page,
-    limit,
+    page = 1,
+    limit = 10,
     search,
+    categoryId,
     minPrice,
     maxPrice,
     sortBy = "createdAt",
@@ -162,6 +241,10 @@ export const listProducts = async (options: ListProductsQueryInput) => {
 
   if (!includeInactive) {
     conditions.push(eq(products.isActive, true));
+  }
+
+  if (categoryId) {
+    conditions.push(eq(products.categoryId, categoryId));
   }
 
   if (search?.trim()) {
@@ -185,18 +268,21 @@ export const listProducts = async (options: ListProductsQueryInput) => {
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const orderBy = {
+  const sortColumnMap = {
     name: products.name,
     price: products.price,
     createdAt: products.createdAt,
-  }[sortBy];
+  };
 
-  const order = sortOrder === "asc" ? asc(orderBy) : desc(orderBy);
+  const selectedSortColumn = sortColumnMap[sortBy] ?? products.createdAt;
+  const order =
+    sortOrder === "asc" ? asc(selectedSortColumn) : desc(selectedSortColumn);
 
   const [productRows, [countResult]] = await Promise.all([
     db
-      .select()
+      .select(productSelectFields)
       .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
       .where(whereClause)
       .orderBy(order)
       .limit(limit)
@@ -227,6 +313,25 @@ export const updateProduct = async (
 ) => {
   const existingProduct = await getProductById(productId);
 
+  if (input.categoryId && input.categoryId !== existingProduct.categoryId) {
+    const [categoryExists] = await db
+      .select({ id: categories.id })
+      .from(categories)
+      .where(eq(categories.id, input.categoryId))
+      .limit(1);
+
+    if (!categoryExists) {
+      throw AppError.notFound(
+        "Selected category does not exist",
+        "CATEGORY_NOT_FOUND",
+      );
+    }
+  }
+
+  if (input.categoryId !== undefined && input.categoryId !== null) {
+    await ensureCategoryExists(input.categoryId);
+  }
+
   if (input.sku && input.sku !== existingProduct.sku) {
     await ensureUniqueSku(input.sku, productId);
   }
@@ -238,29 +343,28 @@ export const updateProduct = async (
 
   const updateData: Record<string, unknown> = {
     updatedAt: new Date(),
+    ...(input.name !== undefined && { name: input.name }),
+    ...(slug !== undefined && { slug }),
+    ...(input.sku !== undefined && { sku: input.sku }),
+    ...(input.categoryId !== undefined && { categoryId: input.categoryId }),
+    ...(input.description !== undefined && { description: input.description }),
+    ...(input.price !== undefined && { price: input.price.toFixed(2) }),
+    ...(input.stock !== undefined && { stock: input.stock }),
+    ...(input.imageUrl !== undefined && { imageUrl: input.imageUrl }),
+    ...(input.isActive !== undefined && { isActive: input.isActive }),
   };
-
-  if (input.name !== undefined) updateData.name = input.name;
-  if (slug !== undefined) updateData.slug = slug;
-  if (input.sku !== undefined) updateData.sku = input.sku;
-  if (input.description !== undefined)
-    updateData.description = input.description;
-  if (input.price !== undefined) updateData.price = input.price.toFixed(2);
-  if (input.stock !== undefined) updateData.stock = input.stock;
-  if (input.imageUrl !== undefined) updateData.imageUrl = input.imageUrl;
-  if (input.isActive !== undefined) updateData.isActive = input.isActive;
 
   const [updatedProduct] = await db
     .update(products)
     .set(updateData)
     .where(eq(products.id, productId))
-    .returning();
+    .returning({ id: products.id });
 
   if (!updatedProduct) {
     throw AppError.internal("Failed to update product");
   }
 
-  return updatedProduct;
+  return getProductById(updatedProduct.id);
 };
 
 export const deactivateProduct = async (productId: string) => {
@@ -271,7 +375,7 @@ export const deactivateProduct = async (productId: string) => {
       updatedAt: new Date(),
     })
     .where(eq(products.id, productId))
-    .returning();
+    .returning({ id: products.id });
 
   if (!product) {
     throw AppError.notFound("Product not found", "PRODUCT_NOT_FOUND");
