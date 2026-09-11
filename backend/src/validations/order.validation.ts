@@ -67,6 +67,10 @@ export const orderListQuerySchema = z.object({
     .min(1, "Limit must be at least 1")
     .max(50, "Limit cannot exceed 50")
     .default(20),
+  status: z
+    .enum(["pending", "processing", "shipped", "delivered", "cancelled"])
+    .optional(),
+  paymentStatus: z.enum(["pending", "paid", "failed", "refunded"]).optional(),
 });
 
 export type OrderListQueryInput = z.infer<typeof orderListQuerySchema>;

@@ -1,7 +1,28 @@
 import type { users } from "../database/schema/users";
+import { orders } from "../database/schema/orders";
 
 // Reuse role type directly from Drizzle schema definition
 export type UserRole = typeof users.$inferSelect.role;
+export type OrderStatus = (typeof orders.status.enumValues)[number];
+export type PaymentStatus = (typeof orders.paymentStatus.enumValues)[number];
+
+export const ALLOWED_ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+  pending: ["processing", "cancelled"],
+  processing: ["shipped", "cancelled"],
+  shipped: ["delivered"],
+  delivered: [],
+  cancelled: [],
+};
+
+export const ALLOWED_PAYMENT_TRANSITIONS: Record<
+  PaymentStatus,
+  PaymentStatus[]
+> = {
+  pending: ["paid", "failed"],
+  paid: ["refunded"],
+  failed: ["pending"],
+  refunded: [],
+};
 
 export interface AuthenticatedUser {
   id: string;
@@ -65,4 +86,11 @@ export interface ListProductsOptions {
   sortBy?: "name" | "price" | "createdAt";
   sortOrder?: "asc" | "desc";
   includeInactive?: boolean;
+}
+
+export interface GetAllOrdersOptions {
+  page: number;
+  limit: number;
+  status?: OrderStatus | undefined;
+  paymentStatus?: PaymentStatus | undefined;
 }
