@@ -36,10 +36,13 @@ export interface User {
 }
 
 export interface AuthResponse {
-  user: User;
+  user?: User;
   accessToken: string;
 }
 
+export interface AuthProviderProps {
+  children: React.ReactNode;
+}
 export interface LoginPayload {
   email: string;
   password: string;
@@ -174,4 +177,30 @@ export interface PaginatedResult<T> {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface CartContextType {
+  items: CartItem[];
+  itemCount: number;
+  subtotal: number;
+  isLoading: boolean;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
+  toggleDrawer: () => void;
+  addItem: (product: Product, quantity?: number) => Promise<void>;
+  updateQuantity: (cartItemId: string, quantity: number) => Promise<void>;
+  removeItem: (cartItemId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
+}
+
+export interface AuthContextValue {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (payload: LoginPayload) => Promise<User>;
+  register: (payload: RegisterPayload) => Promise<User>;
+  logout: () => Promise<void>;
+  refreshSession: () => Promise<User | null>;
 }

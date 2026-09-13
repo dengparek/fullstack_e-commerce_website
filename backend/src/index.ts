@@ -21,7 +21,7 @@ export const app = express();
 // Security: Lock down CORS when handling cookies
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+    origin: process.env.CLIENT_ORIGIN || process.env.CLIENT_URL,
     credentials: true,
   }),
 );

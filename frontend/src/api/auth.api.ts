@@ -1,3 +1,4 @@
+import axios from "axios";
 import { apiClient, setAccessToken } from "./client";
 import type {
   ApiResponse,
@@ -6,6 +7,8 @@ import type {
   RegisterPayload,
   User,
 } from "../types/api";
+
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export const authApi = {
   async register(payload: RegisterPayload): Promise<ApiResponse<AuthResponse>> {
@@ -26,10 +29,6 @@ export const authApi = {
       "/api/auth/login",
       payload,
     );
-
-    if (response.data.data?.accessToken) {
-      setAccessToken(response.data.data.accessToken);
-    }
 
     return response.data;
   },
@@ -52,10 +51,12 @@ export const authApi = {
   },
 
   async refreshToken(): Promise<ApiResponse<{ accessToken: string }>> {
-    const response =
-      await apiClient.post<ApiResponse<{ accessToken: string }>>(
-        "/api/auth/refresh",
-      );
+    // FIX: Use vanilla axios instance to bypass apiClient interceptors completely
+    const response = await axios.post<ApiResponse<{ accessToken: string }>>(
+      `${BASE_URL}/api/auth/refresh`,
+      {},
+      { withCredentials: true },
+    );
 
     if (response.data.data?.accessToken) {
       setAccessToken(response.data.data.accessToken);

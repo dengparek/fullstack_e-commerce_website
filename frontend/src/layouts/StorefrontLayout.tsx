@@ -1,8 +1,11 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 import { ShoppingBag, User, Search, ShieldCheck } from "lucide-react";
+import { useCart } from "../context/CartContext";
 
 export const StorefrontLayout: React.FC = () => {
+  const { itemCount, toggleDrawer } = useCart();
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
       {/* Header */}
@@ -83,6 +86,18 @@ export const StorefrontLayout: React.FC = () => {
           </Link>
         </div>
       </footer>
+      <button
+        onClick={toggleDrawer}
+        className="relative p-2 text-gray-600 hover:text-indigo-600 transition"
+        aria-label="Shopping Cart"
+      >
+        <ShoppingBag className="w-6 h-6" />
+        {itemCount > 0 && (
+          <span className="absolute top-1 right-1 bg-indigo-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+            {itemCount}
+          </span>
+        )}
+      </button>
     </div>
   );
 };

@@ -3,17 +3,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Tag } from "lucide-react";
 import type { ProductCardProps } from "../../types/api";
+import { formatCurrency } from "../../utils/formatters";
+import { useCart } from "../../context/CartContext";
 
-export const STORE_CURRENCY = "SSP";
-export const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  onAddToCart,
-}) => {
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: STORE_CURRENCY,
-  }).format(product.price);
-
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { addItem } = useCart();
   const isOutOfStock = product.stock <= 0;
 
   return (
@@ -74,13 +68,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           <div>
             <span className="text-xs text-gray-400 block">Price</span>
             <span className="text-lg font-bold text-gray-900">
-              {formattedPrice}
+              {formatCurrency(product.price)}
             </span>
           </div>
 
           <button
             type="button"
-            onClick={() => onAddToCart(product)}
+            onClick={() => addItem(product)}
             disabled={isOutOfStock}
             className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-xs font-semibold px-3 py-2 rounded-lg transition shadow-sm"
           >

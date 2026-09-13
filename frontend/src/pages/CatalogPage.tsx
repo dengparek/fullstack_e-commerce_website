@@ -158,7 +158,7 @@ export const CatalogPage: React.FC = () => {
 
       {/* Main Grid State Rendering */}
       {isLoading ? (
-        <div className="min-h-[300px] flex flex-col items-center justify-center text-gray-500">
+        <div className="min-h-75 flex flex-col items-center justify-center text-gray-500">
           <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-2" />
           <p className="text-sm">Fetching products...</p>
         </div>

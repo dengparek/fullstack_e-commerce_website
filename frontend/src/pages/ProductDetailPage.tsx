@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { productsApi } from "../api/products.api";
 import type { Product } from "../types/api";
+import { useCart } from "../context/CartContext";
+// import { useAuth } from "../context/AuthContext";
 import {
   ShoppingBag,
   ArrowLeft,
@@ -15,22 +17,38 @@ import {
   Plus,
 } from "lucide-react";
 import { parseApiError } from "../api/client";
-import { cartApi } from "../api/cart.api";
+import { formatCurrency } from "../utils/formatters";
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<Product | null>(null);
+  const { addItem } = useCart();
+  // const { isLoading: isAuthLoading } = useAuth();
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
+
     const fetchProduct = async () => {
-      if (!slug) return;
+      // FIX 1: If slug is missing (invalid route parameter), stop loading and display 404 UI
+      if (!slug) {
+        if (isMounted) {
+          setError("No product identifier provided in the URL.");
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      // FIX 2: Wait until global authentication initialization completes
+      // if (isAuthLoading) {
+      //   return;
+      // }
+
       setIsLoading(true);
       setError(null);
+
       try {
         const response = await productsApi.getProductBySlug(slug);
         if (isMounted) {
@@ -41,36 +59,22 @@ export const ProductDetailPage: React.FC = () => {
           setError(parseApiError(err));
         }
       } finally {
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchProduct();
+
     return () => {
       isMounted = false;
     };
   }, [slug]);
 
-  const handleAddToCart = async () => {
-    if (!product || isOutOfStock) return;
-
-    setIsAddingToCart(true);
-
-    try {
-      await cartApi.addItem({
-        productId: product.id,
-        quantity,
-      });
-    } catch (err: unknown) {
-      setError(parseApiError(err));
-    } finally {
-      setIsAddingToCart(false);
-    }
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-[500px] flex flex-col items-center justify-center text-gray-500">
+      <div className="min-h-125 flex flex-col items-center justify-center text-gray-500">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-2" />
         <p className="text-sm">Loading product details...</p>
       </div>
@@ -97,11 +101,7 @@ export const ProductDetailPage: React.FC = () => {
     );
   }
 
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(product.price);
-
+  const formattedPrice = formatCurrency(product.price);
   const isOutOfStock = product.stock <= 0;
 
   return (
@@ -208,17 +208,13 @@ export const ProductDetailPage: React.FC = () => {
 
             <button
               type="button"
-              onClick={handleAddToCart}
-              disabled={isOutOfStock || isAddingToCart}
+              onClick={() => addItem(product, quantity)}
+              disabled={isOutOfStock}
               className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition shadow-md"
             >
               <ShoppingBag className="w-5 h-5" />
               <span>
-                {isOutOfStock
-                  ? "Currently Unavailable"
-                  : isAddingToCart
-                    ? "Adding..."
-                    : "Add to Cart"}
+                {isOutOfStock ? "Currently Unavailable" : "Add to Cart"}
               </span>
             </button>
 

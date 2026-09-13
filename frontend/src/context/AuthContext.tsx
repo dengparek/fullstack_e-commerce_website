@@ -4,58 +4,60 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
 import { authApi } from "../api/auth.api";
-import { getAccessToken, setAccessToken } from "../api/client";
-import type { LoginPayload, RegisterPayload, User } from "../types/api";
-
-interface AuthContextValue {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (payload: LoginPayload) => Promise<User>;
-  register: (payload: RegisterPayload) => Promise<User>;
-  logout: () => Promise<void>;
-  refreshSession: () => Promise<User | null>;
-}
+import { setAccessToken } from "../api/client";
+import type {
+  AuthContextValue,
+  AuthProviderProps,
+  LoginPayload,
+  RegisterPayload,
+  User,
+} from "../types/api";
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isMounted = useRef(false);
+
+  const [accessToken, setToken] = useState<string | null>(null);
+
+  const updateAccessToken = useCallback((token: string | null) => {
+    setToken(token);
+    setAccessToken(token);
+  }, []);
 
   const refreshSession = useCallback(async (): Promise<User | null> => {
     try {
       const refreshResponse = await authApi.refreshToken();
-
       const accessToken = refreshResponse.data?.accessToken;
 
       if (!accessToken) {
-        setAccessToken(null);
+        updateAccessToken(accessToken);
         setUser(null);
         return null;
       }
 
+      // FIX 1: Set token in memory FIRST so getCurrentUser carries the Bearer header
+      // setAccessToken(accessToken);
+
       const userResponse = await authApi.getCurrentUser();
 
       if (!userResponse.data) {
-        setAccessToken(null);
+        updateAccessToken(null);
         setUser(null);
         return null;
       }
 
       setUser(userResponse.data);
-
       return userResponse.data;
     } catch {
-      setAccessToken(null);
+      updateAccessToken(null);
       setUser(null);
       return null;
     }
@@ -63,29 +65,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = useCallback(async (payload: LoginPayload): Promise<User> => {
     const response = await authApi.login(payload);
-
     const accessToken = response.data?.accessToken;
 
     if (!accessToken) {
       throw new Error("Login succeeded but no access token was returned.");
     }
 
+    updateAccessToken(accessToken);
+
     const userResponse = await authApi.getCurrentUser();
 
     if (!userResponse.data) {
-      setAccessToken(null);
+      updateAccessToken(null);
       throw new Error("Unable to retrieve the logged-in user.");
     }
 
     setUser(userResponse.data);
-
     return userResponse.data;
   }, []);
 
   const register = useCallback(
     async (payload: RegisterPayload): Promise<User> => {
       const response = await authApi.register(payload);
-
       const accessToken = response.data?.accessToken;
 
       if (!accessToken) {
@@ -94,15 +95,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         );
       }
 
+      setAccessToken(accessToken);
+
       const userResponse = await authApi.getCurrentUser();
 
       if (!userResponse.data) {
-        setAccessToken(null);
+        updateAccessToken(null);
         throw new Error("Unable to retrieve the registered user.");
       }
 
       setUser(userResponse.data);
-
       return userResponse.data;
     },
     [],
@@ -112,36 +114,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await authApi.logout();
     } finally {
-      setAccessToken(null);
+      updateAccessToken(null);
       setUser(null);
     }
   }, []);
 
+  // FIX 2: Single, clean initialization effect with ref guard
   useEffect(() => {
-    let mounted = true;
+    if (isMounted.current) return;
+    isMounted.current = true;
 
-    const restoreSession = async () => {
+    const initializeAuth = async () => {
       try {
         await refreshSession();
       } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
+        // ALWAYS unblock the app loading state
+        setIsLoading(false);
       }
     };
 
-    restoreSession();
-
-    return () => {
-      mounted = false;
-    };
+    initializeAuth();
   }, [refreshSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       isLoading,
-      isAuthenticated: Boolean(user && getAccessToken()),
+      isAuthenticated: Boolean(user && accessToken),
       login,
       register,
       logout,

@@ -16,7 +16,6 @@ export const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Access token is intentionally kept in memory only.
 let inMemoryAccessToken: string | null = null;
 
 export const setAccessToken = (token: string | null): void => {
@@ -27,9 +26,12 @@ export const getAccessToken = (): string | null => {
   return inMemoryAccessToken;
 };
 
-// Prevent multiple requests from refreshing the token simultaneously.
 let refreshPromise: Promise<string | null> | null = null;
 
+/**
+ * Executes token refresh using vanilla axios to prevent
+ * the refresh call itself from running through apiClient interceptors.
+ */
 const refreshAccessToken = async (): Promise<string | null> => {
   if (refreshPromise) {
     return refreshPromise;
@@ -37,18 +39,22 @@ const refreshAccessToken = async (): Promise<string | null> => {
 
   refreshPromise = (async () => {
     try {
-      const response = await apiClient.post<{
+      // FIX 1: Use plain `axios` instead of `apiClient` so refresh
+      // calls never trigger the apiClient interceptors recursively.
+      const response = await axios.post<{
         success: boolean;
         message: string;
         data: {
           accessToken: string;
         };
-      }>("/api/auth/refresh");
+      }>(`${BASE_URL}/api/auth/refresh`, {}, { withCredentials: true });
 
       const newAccessToken = response.data.data.accessToken;
 
+      if (!newAccessToken) {
+        throw new Error("Refresh response did not contain an access token");
+      }
       setAccessToken(newAccessToken);
-
       return newAccessToken;
     } catch {
       setAccessToken(null);
@@ -61,67 +67,60 @@ const refreshAccessToken = async (): Promise<string | null> => {
   return refreshPromise;
 };
 
-// Attach access token to outgoing requests.
+// Attach access token to outgoing requests
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (inMemoryAccessToken && config.headers) {
       config.headers.Authorization = `Bearer ${inMemoryAccessToken}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error),
 );
 
-// Handle expired access tokens.
+// Handle expired access tokens
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError<ApiErrorResponse>) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
 
     if (!originalRequest) {
       return Promise.reject(error);
     }
 
     const status = error.response?.status;
+    const url = originalRequest.url || "";
 
-    const isRefreshRequest = originalRequest.url?.includes("/api/auth/refresh");
+    // FIX 2: Explicitly identify auth endpoint requests to bypass retries completely
+    const isAuthRequest =
+      url.includes("/auth/refresh") ||
+      url.includes("/auth/login") ||
+      url.includes("/auth/register") ||
+      url.includes("/auth/logout");
 
-    const isLoginRequest = originalRequest.url?.includes("/api/auth/login");
-
-    const isRegisterRequest =
-      originalRequest.url?.includes("/api/auth/register");
-
-    // Only attempt refresh for authenticated requests.
-    if (
-      status !== 401 ||
-      isRefreshRequest ||
-      isLoginRequest ||
-      isRegisterRequest
-    ) {
+    // Do NOT attempt token refresh if:
+    // 1. The status is not 401
+    // 2. The request was already an Auth route (Login, Register, Refresh)
+    // 3. The request has already been retried once
+    if (status !== 401 || isAuthRequest || originalRequest._retry) {
       return Promise.reject(error);
     }
 
-    // Prevent the same request from being retried repeatedly.
-    if (
-      (originalRequest as InternalAxiosRequestConfig & { _retry?: boolean })
-        ._retry
-    ) {
-      setAccessToken(null);
-      return Promise.reject(error);
-    }
+    // Mark request as retried
+    originalRequest._retry = true;
 
-    (
-      originalRequest as InternalAxiosRequestConfig & { _retry?: boolean }
-    )._retry = true;
-
+    // Attempt to acquire a new token
     const newAccessToken = await refreshAccessToken();
 
+    // If refresh fails, reject immediately so callers (like ProductDetailPage)
+    // can catch the failure in their try/catch/finally block.
     if (!newAccessToken) {
-      setAccessToken(null);
       return Promise.reject(error);
     }
 
+    // Retry original request with new token
     if (originalRequest.headers) {
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
     }
@@ -130,7 +129,6 @@ apiClient.interceptors.response.use(
   },
 );
 
-// Convert backend errors into clean frontend messages.
 export const parseApiError = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     const serverError = error.response?.data as ApiErrorResponse | undefined;

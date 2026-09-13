@@ -1,12 +1,22 @@
 // src/routes/AppRoutes.tsx
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 
-import { StorefrontLayout } from "../layouts/StorefrontLayout";
+// Import your actual layout if available, or use this inline StorefrontLayout
 import { AdminLayout } from "../layouts/adminLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoute } from "./adminRoute";
 import { ProductDetailPage } from "../pages/ProductDetailPage";
+
+// Generic Layout wrapper for public pages if StorefrontLayout isn't imported
+const StorefrontLayout = () => (
+  <div className="min-h-screen bg-gray-50">
+    {/* Navbar/Header would go here */}
+    <main>
+      <Outlet />
+    </main>
+  </div>
+);
 
 // Public pages
 const HomePage = () => (
@@ -54,10 +64,9 @@ const AdminUsersPage = () => (
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public storefront */}
+      {/* Public storefront layout */}
       <Route path="/" element={<StorefrontLayout />}>
         <Route index element={<HomePage />} />
-        <Route index element={<CatalogPage />} />
         <Route path="products" element={<CatalogPage />} />
         <Route path="products/:slug" element={<ProductDetailPage />} />
         <Route path="cart" element={<CartPage />} />
