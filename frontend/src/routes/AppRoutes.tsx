@@ -1,76 +1,81 @@
-// src/routes/AppRoutes.tsx
 import React from "react";
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 
-// Import your actual layout if available, or use this inline StorefrontLayout
+import { StorefrontLayout } from "../layouts/StorefrontLayout";
 import { AdminLayout } from "../layouts/adminLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoute } from "./adminRoute";
+
+// Storefront pages
+import { CatalogPage } from "../pages/CatalogPage";
 import { ProductDetailPage } from "../pages/ProductDetailPage";
-
-// Generic Layout wrapper for public pages if StorefrontLayout isn't imported
-const StorefrontLayout = () => (
-  <div className="min-h-screen bg-gray-50">
-    {/* Navbar/Header would go here */}
-    <main>
-      <Outlet />
-    </main>
-  </div>
-);
-
-// Public pages
-const HomePage = () => (
-  <div className="p-6 bg-white rounded-lg border">Home / Storefront</div>
-);
-
-const CatalogPage = () => (
-  <div className="p-6 bg-white rounded-lg border">Product Catalog</div>
-);
-
-const CartPage = () => (
-  <div className="p-6 bg-white rounded-lg border">Shopping Cart</div>
-);
-
-const LoginPage = () => (
-  <div className="p-6 bg-white rounded-lg border">Login Form</div>
-);
-
-const RegisterPage = () => (
-  <div className="p-6 bg-white rounded-lg border">Register Form</div>
-);
+import { CartPage } from "../pages/CartPage";
+import { LoginPage } from "../pages/LoginPage";
+import { RegisterPage } from "../pages/RegisterPage";
 
 // Customer protected pages
-const CustomerOrdersPage = () => (
-  <div className="p-6 bg-white rounded-lg border">My Orders</div>
-);
+const CustomerOrdersPage: React.FC = () => {
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold text-gray-900 mb-4">My Orders</h1>
+
+      <div className="p-6 bg-white rounded-xl border border-gray-200">
+        <p className="text-sm text-gray-500">
+          Order history list will be rendered here in Module 7.
+        </p>
+      </div>
+    </div>
+  );
+};
 
 // Admin protected pages
-const AdminProductsPage = () => (
-  <div className="p-6 bg-white rounded-lg border">Admin: Products</div>
-);
+const AdminProductsPage: React.FC = () => {
+  return (
+    <div className="p-6 bg-white rounded-lg border border-gray-200">
+      Admin: Products Management
+    </div>
+  );
+};
 
-const AdminCategoriesPage = () => (
-  <div className="p-6 bg-white rounded-lg border">Admin: Categories</div>
-);
+const AdminCategoriesPage: React.FC = () => {
+  return (
+    <div className="p-6 bg-white rounded-lg border border-gray-200">
+      Admin: Categories Management
+    </div>
+  );
+};
 
-const AdminOrdersPage = () => (
-  <div className="p-6 bg-white rounded-lg border">Admin: Orders</div>
-);
+const AdminOrdersPage: React.FC = () => {
+  return (
+    <div className="p-6 bg-white rounded-lg border border-gray-200">
+      Admin: Orders Management
+    </div>
+  );
+};
 
-const AdminUsersPage = () => (
-  <div className="p-6 bg-white rounded-lg border">Admin: Users</div>
-);
+const AdminUsersPage: React.FC = () => {
+  return (
+    <div className="p-6 bg-white rounded-lg border border-gray-200">
+      Admin: Users Management
+    </div>
+  );
+};
 
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
-      {/* Public storefront layout */}
+      {/* Public storefront routes */}
       <Route path="/" element={<StorefrontLayout />}>
-        <Route index element={<HomePage />} />
+        <Route index element={<Navigate to="/products" replace />} />
+
         <Route path="products" element={<CatalogPage />} />
+
         <Route path="products/:slug" element={<ProductDetailPage />} />
+
         <Route path="cart" element={<CartPage />} />
+
         <Route path="login" element={<LoginPage />} />
+
         <Route path="register" element={<RegisterPage />} />
 
         {/* Authenticated customer routes */}
@@ -83,15 +88,19 @@ export const AppRoutes: React.FC = () => {
       <Route path="/admin" element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/products" replace />} />
+
           <Route path="products" element={<AdminProductsPage />} />
+
           <Route path="categories" element={<AdminCategoriesPage />} />
+
           <Route path="orders" element={<AdminOrdersPage />} />
+
           <Route path="users" element={<AdminUsersPage />} />
         </Route>
       </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Fallback route */}
+      <Route path="*" element={<Navigate to="/products" replace />} />
     </Routes>
   );
 };

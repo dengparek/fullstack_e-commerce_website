@@ -34,10 +34,20 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+export interface CartDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
 export interface AuthResponse {
   user?: User;
   accessToken: string;
+}
+
+export interface LocationState {
+  from?: {
+    pathname: string;
+  };
 }
 
 export interface AuthProviderProps {
@@ -172,11 +182,15 @@ export interface AdminUserQueryParams {
 }
 
 export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  products: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
 }
 
 export interface CartContextType {

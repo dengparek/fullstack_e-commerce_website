@@ -1,103 +1,236 @@
-import React from "react";
-import { Link, Outlet } from "react-router-dom";
-import { ShoppingBag, User, Search, ShieldCheck } from "lucide-react";
+// src/layouts/StorefrontLayout.tsx
+import React, { useState } from "react";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
+import { CartDrawer } from "../components/carts/CartDrawer";
+import {
+  ShoppingBag,
+  User,
+  LogOut,
+  Package,
+  ShieldCheck,
+  Menu,
+  X,
+} from "lucide-react";
 
 export const StorefrontLayout: React.FC = () => {
-  const { itemCount, toggleDrawer } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
+  const { itemCount } = useCart();
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login", { replace: true });
+  };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          {/* Brand */}
-          <Link
-            to="/"
-            className="flex items-center gap-2 font-bold text-xl tracking-tight text-gray-900"
-          >
-            <span className="bg-indigo-600 text-white p-1.5 rounded-lg text-sm font-black">
-              EC
-            </span>
-
-            <span>Storefront</span>
-          </Link>
-
-          {/* Search */}
-          <div className="flex-1 max-w-md hidden md:block">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-
-              <input
-                type="search"
-                placeholder="Search products..."
-                className="w-full pl-9 pr-4 py-2 bg-gray-100 border border-transparent rounded-lg text-sm focus:outline-none focus:bg-white focus:border-indigo-500 transition"
-              />
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex items-center gap-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+      {/* Top Navigation Bar */}
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
             <Link
               to="/products"
-              className="text-sm font-medium text-gray-700 hover:text-indigo-600 transition"
+              className="flex items-center gap-2 font-bold text-xl text-indigo-600"
+            >
+              <ShoppingBag className="w-6 h-6 text-indigo-600" />
+              <span> Storefront</span>
+            </Link>
+
+            {/* Desktop Navigation Links */}
+            <nav className="hidden md:flex items-center gap-6">
+              <Link
+                to="/products"
+                className={`text-sm font-medium transition ${
+                  location.pathname === "/products"
+                    ? "text-indigo-600 font-semibold"
+                    : "text-gray-600 hover:text-indigo-600"
+                }`}
+              >
+                Catalog
+              </Link>
+
+              {isAuthenticated && (
+                <Link
+                  to="/my-orders"
+                  className={`text-sm font-medium flex items-center gap-1.5 transition ${
+                    location.pathname === "/my-orders"
+                      ? "text-indigo-600 font-semibold"
+                      : "text-gray-600 hover:text-indigo-600"
+                  }`}
+                >
+                  <Package className="w-4 h-4" />
+                  <span>My Orders</span>
+                </Link>
+              )}
+
+              {/* Admin Portal Shortcut for Admin Users */}
+              {user?.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full flex items-center gap-1 hover:bg-amber-100 transition"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Admin Portal</span>
+                </Link>
+              )}
+            </nav>
+
+            {/* Right Side Actions */}
+            <div className="flex items-center gap-4">
+              {/* Cart Drawer Trigger Button */}
+              <button
+                type="button"
+                onClick={() => setIsCartOpen(true)}
+                className="relative p-2 text-gray-600 hover:text-indigo-600 transition"
+                aria-label="Shopping Cart"
+              >
+                <ShoppingBag className="w-6 h-6" />
+                {itemCount > 0 && (
+                  <span className="absolute top-1 right-1 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-in zoom-in-50">
+                    {itemCount > 99 ? "99+" : itemCount}
+                  </span>
+                )}
+              </button>
+
+              <div className="hidden md:block h-6 w-px bg-gray-200" />
+
+              {/* Desktop Auth Section */}
+              <div className="hidden md:flex items-center gap-3">
+                {isAuthenticated && user ? (
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-xs font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-full">
+                      <User className="w-4 h-4 text-gray-500" />
+                      <span>{user.name}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void handleLogout();
+                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-red-600 transition px-2 py-1.5 rounded-lg"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Link
+                      to="/login"
+                      className="text-xs font-semibold text-gray-700 hover:text-indigo-600 px-3 py-2 transition"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl transition shadow-sm"
+                    >
+                      Register
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="md:hidden p-2 text-gray-600 hover:text-gray-900"
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-6 h-6" />
+                ) : (
+                  <Menu className="w-6 h-6" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-100 bg-white px-4 pt-2 pb-4 space-y-3">
+            <Link
+              to="/products"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="block py-2 text-sm font-medium text-gray-700 hover:text-indigo-600"
             >
               Catalog
             </Link>
 
-            <Link
-              to="/cart"
-              className="relative p-2 text-gray-700 hover:text-indigo-600 transition"
-              aria-label="Shopping Cart"
-            >
-              <ShoppingBag className="w-5 h-5" />
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/my-orders"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="block py-2 text-sm font-medium text-gray-700 hover:text-indigo-600"
+                >
+                  My Orders
+                </Link>
 
-            <Link
-              to="/login"
-              className="flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-indigo-600 transition"
-            >
-              <User className="w-4 h-4" />
-              <span>Sign In</span>
-            </Link>
-          </nav>
-        </div>
+                {user?.role === "admin" && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block py-2 text-sm font-semibold text-amber-700"
+                  >
+                    Admin Portal
+                  </Link>
+                )}
+
+                <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                  <span className="text-xs text-gray-500">
+                    Signed in as {user?.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="text-xs font-semibold text-red-600 flex items-center gap-1"
+                  >
+                    <LogOut className="w-3.5 h-3.5" /> Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="pt-2 border-t border-gray-100 grid grid-cols-2 gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center text-xs font-semibold py-2 border rounded-lg text-gray-700"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-center text-xs font-semibold py-2 bg-indigo-600 text-white rounded-lg"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
-      {/* Main */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Main Page Content Container */}
+      <main className="flex-1">
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-          <p>
-            © {new Date().getFullYear()} Full-Stack E-Commerce. All rights
-            reserved.
-          </p>
-
-          <Link
-            to="/admin"
-            className="hover:underline flex items-center gap-1 text-gray-600"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Admin Portal</span>
-          </Link>
-        </div>
-      </footer>
-      <button
-        onClick={toggleDrawer}
-        className="relative p-2 text-gray-600 hover:text-indigo-600 transition"
-        aria-label="Shopping Cart"
-      >
-        <ShoppingBag className="w-6 h-6" />
-        {itemCount > 0 && (
-          <span className="absolute top-1 right-1 bg-indigo-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
-            {itemCount}
-          </span>
-        )}
-      </button>
+      {/* Cart Drawer Component */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 };

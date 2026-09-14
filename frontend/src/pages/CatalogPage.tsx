@@ -173,7 +173,7 @@ export const CatalogPage: React.FC = () => {
             Try Again
           </button>
         </div>
-      ) : !data || data.items.length === 0 ? (
+      ) : !data || data.products.length === 0 ? (
         <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center text-gray-500 flex flex-col items-center">
           <PackageX className="w-12 h-12 stroke-1 text-gray-400 mb-3" />
           <h3 className="text-base font-semibold text-gray-800">
@@ -188,7 +188,7 @@ export const CatalogPage: React.FC = () => {
         <>
           {/* Product Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {data.items.map((product) => (
+            {data.products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -198,12 +198,15 @@ export const CatalogPage: React.FC = () => {
           </div>
 
           {/* Pagination Bar */}
-          {data.totalPages > 1 && (
+          {data.pagination.totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-gray-200 pt-6">
               <span className="text-xs text-gray-500">
-                Page <span className="font-medium">{data.page}</span> of{" "}
-                <span className="font-medium">{data.totalPages}</span> (
-                {data.total} total items)
+                Page <span className="font-medium">{data.pagination.page}</span>{" "}
+                of{" "}
+                <span className="font-medium">
+                  {data.pagination.totalPages}
+                </span>{" "}
+                ({data.pagination.total} total items)
               </span>
 
               <div className="flex items-center gap-2">
@@ -220,7 +223,7 @@ export const CatalogPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage >= data.totalPages}
+                  disabled={currentPage >= data.pagination.totalPages}
                   className="flex items-center gap-1 px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
                   Next

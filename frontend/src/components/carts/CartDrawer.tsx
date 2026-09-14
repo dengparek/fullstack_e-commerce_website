@@ -4,8 +4,9 @@ import { Link } from "react-router-dom";
 import { X, ShoppingBag, Trash2, Plus, Minus, ArrowRight } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { formatCurrency } from "../../utils/formatters";
+import type { CartDrawerProps } from "../../types/api";
 
-export const CartDrawer: React.FC = () => {
+export const CartDrawer: React.FC<CartDrawerProps> = () => {
   const {
     isDrawerOpen,
     closeDrawer,
