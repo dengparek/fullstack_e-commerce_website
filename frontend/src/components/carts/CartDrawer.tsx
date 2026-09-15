@@ -4,9 +4,8 @@ import { Link } from "react-router-dom";
 import { X, ShoppingBag, Trash2, Plus, Minus, ArrowRight } from "lucide-react";
 import { useCart } from "../../context/CartContext";
 import { formatCurrency } from "../../utils/formatters";
-import type { CartDrawerProps } from "../../types/api";
 
-export const CartDrawer: React.FC<CartDrawerProps> = () => {
+export const CartDrawer: React.FC = () => {
   const {
     isDrawerOpen,
     closeDrawer,
@@ -26,7 +25,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = () => {
         onClick={closeDrawer}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10 z-50">
         <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col justify-between">
           {/* Drawer Header */}
           <div className="p-6 border-b border-gray-100 flex items-center justify-between">
@@ -38,8 +37,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = () => {
               </span>
             </div>
             <button
+              type="button"
               onClick={closeDrawer}
-              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition"
+              className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -57,82 +57,84 @@ export const CartDrawer: React.FC<CartDrawerProps> = () => {
                   Looks like you haven't added anything to your cart yet.
                 </p>
                 <button
+                  type="button"
                   onClick={closeDrawer}
-                  className="mt-6 text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition"
+                  className="mt-6 text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition cursor-pointer"
                 >
                   Continue Shopping &rarr;
                 </button>
               </div>
             ) : (
-              items.map((item) => {
-                {
-                  formatCurrency(item.product.price);
-                }
-                return (
-                  <div
-                    key={item.id}
-                    className="flex gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100 items-center justify-between"
-                  >
-                    {/* Item Thumbnail */}
-                    <div className="w-16 h-16 bg-white rounded-lg overflow-hidden border border-gray-200 shrink-0">
-                      {item.product.imageUrl ? (
-                        <img
-                          src={item.product.imageUrl}
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                          <ShoppingBag className="w-6 h-6 stroke-1" />
-                        </div>
-                      )}
-                    </div>
+              items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100 items-center justify-between"
+                >
+                  {/* Item Thumbnail */}
+                  <div className="w-16 h-16 bg-white rounded-lg overflow-hidden border border-gray-200 shrink-0">
+                    {item.product.imageUrl ? (
+                      <img
+                        src={item.product.imageUrl}
+                        alt={item.product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300">
+                        <ShoppingBag className="w-6 h-6 stroke-1" />
+                      </div>
+                    )}
+                  </div>
 
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-semibold text-gray-900 truncate">
-                        {item.product.name}
-                      </h4>
-                      <p className="text-xs font-bold text-gray-700 mt-0.5">
-                        {formatCurrency(item.product.price)}
-                      </p>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-xs font-semibold text-gray-900 truncate">
+                      {item.product.name}
+                    </h4>
+                    <p className="text-xs font-bold text-gray-700 mt-0.5">
+                      {formatCurrency(item.product.price)}
+                    </p>
 
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-2 mt-2">
-                        <div className="flex items-center border border-gray-200 rounded-md bg-white">
-                          <button
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1)
-                            }
-                            className="p-1 text-gray-500 hover:bg-gray-100 transition"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="px-2 text-xs font-semibold text-gray-800">
-                            {item.quantity}
-                          </span>
-                          <button
-                            onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1)
-                            }
-                            className="p-1 text-gray-500 hover:bg-gray-100 transition"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center border border-gray-200 rounded-md bg-white">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateQuantity(
+                              item.id,
+                              Math.max(1, item.quantity - 1),
+                            )
+                          }
+                          className="p-1 text-gray-500 hover:bg-gray-100 transition cursor-pointer"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="px-2 text-xs font-semibold text-gray-800">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          className="p-1 text-gray-500 hover:bg-gray-100 transition cursor-pointer"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
-
-                    {/* Delete Item */}
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 transition shrink-0"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
                   </div>
-                );
-              })
+
+                  {/* Delete Item */}
+                  <button
+                    type="button"
+                    onClick={() => removeItem(item.id)}
+                    className="p-2 text-gray-400 hover:text-red-600 transition shrink-0 cursor-pointer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))
             )}
           </div>
 

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import { apiClient, setAccessToken } from "./client";
 import type {
   ApiResponse,
@@ -44,8 +44,13 @@ export const authApi = {
     }
   },
 
-  async getCurrentUser(): Promise<ApiResponse<User>> {
-    const response = await apiClient.get<ApiResponse<User>>("/api/users/me");
+  async getCurrentUser(
+    config?: AxiosRequestConfig,
+  ): Promise<ApiResponse<User>> {
+    const response = await apiClient.get<ApiResponse<User>>(
+      "/api/users/me",
+      config,
+    );
 
     return response.data;
   },

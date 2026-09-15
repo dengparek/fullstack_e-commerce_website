@@ -96,8 +96,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       setAccessToken(accessToken);
+      const userResponse = await authApi.getCurrentUser({
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
-      const userResponse = await authApi.getCurrentUser();
+      // const userResponse = await authApi.getCurrentUser();
 
       if (!userResponse.data) {
         updateAccessToken(null);

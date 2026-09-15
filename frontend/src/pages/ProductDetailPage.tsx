@@ -28,6 +28,21 @@ export const ProductDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!product) {
+      return;
+    }
+
+    try {
+      // Passes product object and optional quantity (defaults to 1)
+      await addItem(product, quantity);
+    } catch (err) {
+      console.error("Failed adding to cart:", err);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -195,7 +210,9 @@ export const ProductDetailPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() =>
-                      setQuantity((q) => Math.min(product.stock, q + 1))
+                      setQuantity((q) =>
+                        Math.min(Number(product.stock) || 99, q + 1),
+                      )
                     }
                     disabled={quantity >= product.stock}
                     className="p-2 text-gray-600 hover:bg-gray-100 disabled:opacity-30 transition"
@@ -208,7 +225,7 @@ export const ProductDetailPage: React.FC = () => {
 
             <button
               type="button"
-              onClick={() => addItem(product, quantity)}
+              onClick={handleAddToCart}
               disabled={isOutOfStock}
               className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-xl transition shadow-md"
             >

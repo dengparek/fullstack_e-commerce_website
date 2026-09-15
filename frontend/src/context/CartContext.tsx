@@ -10,6 +10,8 @@ import React, {
 import type { CartContextType, CartItem, Product } from "../types/api";
 import { cartApi } from "../api/cart.api";
 import { useAuth } from "./AuthContext";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -20,6 +22,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const openDrawer = () => setIsDrawerOpen(true);
   const closeDrawer = () => setIsDrawerOpen(false);
@@ -58,12 +62,40 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
 
   // Add Item
   const addItem = async (product: Product, quantity: number = 1) => {
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: location.pathname } });
+      return;
+    }
+
+    const rawProduct = (product as any)?.product || product;
+    const targetId =
+      rawProduct?.id || rawProduct?.product_id || rawProduct?._id;
+    console.log("🔍 Product ID being sent:", {
+      id: product.id,
+      type: typeof product.id,
+      isValidUuid:
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          product.id,
+        ),
+    });
     try {
-      await cartApi.addItem({ productId: product.id, quantity });
+      await cartApi.addItem({
+        productId: targetId,
+        quantity: Number(quantity),
+      });
       await refreshCart();
       openDrawer();
     } catch (err) {
-      console.error("Failed to add item to cart:", err);
+      console.log(
+        "📦 Full Raw Product Object:",
+        JSON.stringify(product, null, 2),
+      );
+      if (axios.isAxiosError(err)) {
+        console.log("❌ SERVER ERROR RESPONSE:", err.response?.data);
+        console.log("❌ HTTP STATUS CODE:", err.response?.status);
+      } else {
+        console.error("Unexpected error:", err);
+      }
       await refreshCart(); // Revert on error
     }
   };

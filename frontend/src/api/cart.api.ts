@@ -16,7 +16,10 @@ export const cartApi = {
   async addItem(payload: AddToCartPayload): Promise<ApiResponse<Cart>> {
     const response = await apiClient.post<ApiResponse<Cart>>(
       "/api/cart/items",
-      payload,
+      {
+        product_id: payload.productId,
+        quantity: Number(payload.quantity),
+      },
     );
 
     return response.data;

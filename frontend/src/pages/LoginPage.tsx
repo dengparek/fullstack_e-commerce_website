@@ -14,7 +14,6 @@ export const LoginPage: React.FC = () => {
 
   // Redirect destination after successful login
   const from = locationState?.from?.pathname || "/products";
-  navigate(from, { replace: true });
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,8 +35,8 @@ export const LoginPage: React.FC = () => {
 
     if (!password) {
       newErrors.password = "Password is required.";
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters.";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters.";
     }
 
     setErrors(newErrors);
