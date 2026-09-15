@@ -21,6 +21,8 @@ export const app = express();
 // Security: Lock down CORS when handling cookies
 const allowedOrigins = [
   process.env.CLIENT_ORIGIN,
+  process.env.CLIENT_URL,
+  "https://fullstack-e-commerce-website-pi.vercel.app",
   "http://localhost:5173",
 ].filter(Boolean) as string[];
 
@@ -28,10 +30,15 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith("-dura4.vercel.app") ||
+        origin.endsWith(".vercel.app")
+      ) {
+        return callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        return callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
