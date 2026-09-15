@@ -20,6 +20,12 @@ The project is structured as a monorepo containing a React frontend and a RESTfu
 - Client-server separation
 - Environment-based configuration
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-blue?style=for-the-badge&logo=vercel)](https://fullstack-e-commerce-website-pi.vercel.app)
+[![Backend API](https://img.shields.io/badge/Backend%20API-Render-black?style=for-the-badge&logo=render)](https://fullstack-e-commerce-website-backend.onrender.com)
+
+🚀 **Live Storefront:** [https://fullstack-e-commerce-website-pi.vercel.app](https://fullstack-e-commerce-website-pi.vercel.app)  
+⚡ **Backend API Health Check:** [https://fullstack-e-commerce-website-backend.onrender.com/api/products](https://fullstack-e-commerce-website-backend.onrender.com/api/products)
+
 ## Technology Stack
 
 ### Frontend
