@@ -4,8 +4,7 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch --env-file=.env.development.local src/index.ts",
     "build": "tsc",
@@ -16,7 +15,12 @@
     "seed:admin": "tsx src/database/seed-admin.ts"
   },
   "dependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.10.1",
+    "@types/pg": "^8.23.1",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -29,11 +33,6 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.10",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.10.1",
-    "@types/pg": "^8.23.1",
     "drizzle-kit": "^0.31.10",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
