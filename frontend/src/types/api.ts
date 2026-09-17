@@ -163,7 +163,11 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
-  userId: string;
+  user?: {
+    id: string;
+    email: string;
+    name?: string;
+  };
   items: OrderItem[];
   totalAmount: number;
   status: OrderStatus;
@@ -199,7 +203,7 @@ export interface AdminUserQueryParams {
 }
 
 export interface PaginatedResult<T> {
-  products: T[];
+  items: T[];
   pagination: {
     page: number;
     limit: number;
@@ -209,6 +213,31 @@ export interface PaginatedResult<T> {
     hasPreviousPage: boolean;
   };
 }
+
+export interface PaginatedResults<T> {
+  users: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
+// Example: Aliasing properties if the internal naming shifted
+// export type PaginatedResultS<T> = {
+//   items: T[];
+//   meta: {
+//     total: number;
+//     page: number;
+//     limit: number;
+//   };
+//   // Backward compatibility getters / aliases if needed during refactor:
+//   /** @deprecated Use `items` instead */
+//   data?: T[];
+// };
 
 export interface CartContextType {
   items: CartItem[];

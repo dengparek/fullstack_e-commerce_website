@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { adminApi } from "../api/admin.api";
-import { productsApi } from "../api/products.api"; // For fetching public product list
+import { productsApi } from "../api/products.api";
 import { categoriesApi } from "../api/categories.api";
 import type { Category, Product, ProductPayload } from "../types/api";
 import axios from "axios";
@@ -44,13 +44,7 @@ export const AdminProductsPage: React.FC = () => {
         productsApi.getProducts(),
         categoriesApi.getCategories(),
       ]);
-
-      //   const prodData: any = productsRes;
-      //   const catData: any = categoriesRes;
-
-      //   setProducts(Array.isArray(prodData) ? prodData : prodData?.data || []);
-      // setCategories(Array.isArray(catData) ? catData : catData?.data || []);
-      setProducts(productsRes.data.products);
+      setProducts(productsRes.data.items || []);
       setCategories(categoriesRes.data);
     } catch (err: unknown) {
       setError(getErrorMessage(err, "Failed to fetch data"));

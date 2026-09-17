@@ -16,6 +16,7 @@ import { CheckoutPage } from "../pages/CheckoutPage";
 import { OrderConfirmationPage } from "../pages/OrderConfirmationPage";
 import { CustomerOrdersPage } from "../pages/CustomerOrdersPage"; // Real page import
 import { AdminProductsPage } from "../pages/AdminProductsPage";
+import { AdminCategoriesPage } from "../pages/AdminCategoriesPage";
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -52,10 +53,7 @@ export const AppRoutes: React.FC = () => {
           <Route element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/products" replace />} />
             <Route path="products" element={<AdminProductsPage />} />
-            <Route
-              path="categories"
-              element={<div>Admin Categories Page</div>}
-            />
+            <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="orders" element={<div>Admin Orders Page</div>} />
             <Route path="users" element={<div>Admin Users Page</div>} />
           </Route>
