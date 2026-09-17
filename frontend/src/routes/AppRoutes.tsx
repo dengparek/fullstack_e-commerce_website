@@ -14,54 +14,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { CheckoutPage } from "../pages/CheckoutPage";
 import { OrderConfirmationPage } from "../pages/OrderConfirmationPage";
-
-// Customer protected pages
-const CustomerOrdersPage: React.FC = () => {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">My Orders</h1>
-
-      <div className="p-6 bg-white rounded-xl border border-gray-200">
-        <p className="text-sm text-gray-500">
-          Order history list will be rendered here in Module 7.
-        </p>
-      </div>
-    </div>
-  );
-};
-
-// Admin protected pages
-const AdminProductsPage: React.FC = () => {
-  return (
-    <div className="p-6 bg-white rounded-lg border border-gray-200">
-      Admin: Products Management
-    </div>
-  );
-};
-
-const AdminCategoriesPage: React.FC = () => {
-  return (
-    <div className="p-6 bg-white rounded-lg border border-gray-200">
-      Admin: Categories Management
-    </div>
-  );
-};
-
-const AdminOrdersPage: React.FC = () => {
-  return (
-    <div className="p-6 bg-white rounded-lg border border-gray-200">
-      Admin: Orders Management
-    </div>
-  );
-};
-
-const AdminUsersPage: React.FC = () => {
-  return (
-    <div className="p-6 bg-white rounded-lg border border-gray-200">
-      Admin: Users Management
-    </div>
-  );
-};
+import { CustomerOrdersPage } from "../pages/CustomerOrdersPage"; // Real page import
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -91,18 +44,16 @@ export const AppRoutes: React.FC = () => {
         </Route>
       </Route>
 
-      {/* Authenticated admin routes */}
+      {/* Authenticated admin routes (Placeholders ready for Module 8 implementation) */}
       <Route path="/admin" element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/products" replace />} />
 
-          <Route path="products" element={<AdminProductsPage />} />
-
-          <Route path="categories" element={<AdminCategoriesPage />} />
-
-          <Route path="orders" element={<AdminOrdersPage />} />
-
-          <Route path="users" element={<AdminUsersPage />} />
+          {/* We will swap these out with real page imports during Module 8 */}
+          {/* <Route path="products" element={<div>Admin Products Page</div>} />
+          <Route path="categories" element={<div>Admin Categories Page</div>} />
+          <Route path="orders" element={<div>Admin Orders Page</div>} />
+          <Route path="users" element={<div>Admin Users Page</div>} /> */}
         </Route>
       </Route>
 
