@@ -12,6 +12,8 @@ import { ProductDetailPage } from "../pages/ProductDetailPage";
 import { CartPage } from "../pages/CartPage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
+import { CheckoutPage } from "../pages/CheckoutPage";
+import { OrderConfirmationPage } from "../pages/OrderConfirmationPage";
 
 // Customer protected pages
 const CustomerOrdersPage: React.FC = () => {
@@ -80,6 +82,11 @@ export const AppRoutes: React.FC = () => {
 
         {/* Authenticated customer routes */}
         <Route element={<ProtectedRoute />}>
+          <Route path="checkout" element={<CheckoutPage />} />
+          <Route
+            path="orders/:id/confirmation"
+            element={<OrderConfirmationPage />}
+          />
           <Route path="my-orders" element={<CustomerOrdersPage />} />
         </Route>
       </Route>

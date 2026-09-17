@@ -5,6 +5,7 @@ export interface ApiResponse<T> {
   success: boolean;
   message?: string;
   data: T;
+  id: string;
 }
 
 export interface ProductCardProps {
@@ -168,10 +169,25 @@ export interface Order {
   shippingAddress: string;
   createdAt: string;
   updatedAt: string;
+  orderItems: Array<{
+    id: string;
+    productId: string;
+    quantity: number;
+    price: number;
+    product?: {
+      name: string;
+      imageUrl?: string;
+    };
+  }>;
 }
 
 export interface CreateOrderPayload {
   shippingAddress: string;
+  items: {
+    productId: string;
+    quantity: number;
+    price: number;
+  }[];
 }
 
 // Admin User Query Types
