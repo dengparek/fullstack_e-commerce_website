@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import { getMyOrders } from "../../../api/orders.api";
 import { ordersApi } from "../api/orders.api";
 import type { Order } from "../types/api";
 
@@ -13,8 +12,15 @@ export const CustomerOrdersPage: React.FC = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await ordersApi.getMyOrders();
-        setOrders(response.data);
+        const orderList = Array.isArray(response)
+          ? response
+          : Array.isArray(response?.data)
+            ? response.data
+            : [];
+        setOrders(orderList);
+        setOrders([]);
       } catch (err: any) {
         setError(err.response?.data?.message || "Failed to load your orders.");
       } finally {
@@ -42,7 +48,7 @@ export const CustomerOrdersPage: React.FC = () => {
         </div>
       )}
 
-      {orders.length === 0 ? (
+      {Array.isArray(orders) && orders.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-xl p-8 text-center">
           <p className="text-slate-500 mb-4">
             You haven't placed any orders yet.
@@ -56,42 +62,43 @@ export const CustomerOrdersPage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => (
-            <div
-              key={order.id}
-              className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-            >
-              <div>
-                <div className="flex items-center space-x-3 mb-1">
-                  <span className="font-mono font-bold text-slate-900 text-sm">
-                    #{order.id}
-                  </span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold capitalize bg-slate-100 text-slate-800">
-                    {order.status}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-500">
-                  Placed on {new Date(order.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-6">
+          {Array.isArray(orders) &&
+            orders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+              >
                 <div>
-                  <span className="text-xs text-slate-500 block">Total</span>
-                  <span className="text-sm font-bold text-slate-900">
-                    ${Number(order.totalAmount).toFixed(2)}
-                  </span>
+                  <div className="flex items-center space-x-3 mb-1">
+                    <span className="font-mono font-bold text-slate-900 text-sm">
+                      #{order.id}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold capitalize bg-slate-100 text-slate-800">
+                      {order.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    Placed on {new Date(order.createdAt).toLocaleDateString()}
+                  </p>
                 </div>
 
-                <Link
-                  to={`/orders/${order.id}/confirmation`}
-                  className="text-xs font-medium text-slate-900 border border-slate-300 rounded px-3 py-1.5 hover:bg-slate-50 transition"
-                >
-                  View Details
-                </Link>
+                <div className="flex items-center space-x-6">
+                  <div>
+                    <span className="text-xs text-slate-500 block">Total</span>
+                    <span className="text-sm font-bold text-slate-900">
+                      ${Number(order.totalAmount).toFixed(2)}
+                    </span>
+                  </div>
+
+                  <Link
+                    to={`/orders/${order.id}/confirmation`}
+                    className="text-xs font-medium text-slate-900 border border-slate-300 rounded px-3 py-1.5 hover:bg-slate-50 transition"
+                  >
+                    View Details
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </div>
