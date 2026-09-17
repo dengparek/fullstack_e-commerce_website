@@ -102,6 +102,7 @@ export interface Product {
 export interface ProductPayload {
   name: string;
   sku: string;
+  slug: string;
   description: string;
   price: number;
   stock: number;
