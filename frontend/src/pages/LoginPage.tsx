@@ -4,16 +4,16 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { parseApiError } from "../api/client";
 import { LogIn, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
-import type { LocationState } from "../types/api";
+// import type { LocationState } from "../types/api";
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const locationState = location.state as LocationState | null;
+  // const locationState = location.state as LocationState | null;
 
   // Redirect destination after successful login
-  const from = locationState?.from?.pathname || "/products";
+  // const from = locationState?.from?.pathname || "/products";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,8 +52,14 @@ export const LoginPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      await login({ email: email.trim().toLowerCase(), password });
-      navigate(from, { replace: true });
+      const user = await login({ email: email.trim().toLowerCase(), password });
+      // Redirect admins to /admin/products, normal users to /products
+      if (user.role === "admin") {
+        navigate("/admin/products");
+      } else {
+        navigate("/products");
+      }
+      // navigate(from, { replace: true });
     } catch (err: unknown) {
       setApiError(parseApiError(err));
     } finally {
