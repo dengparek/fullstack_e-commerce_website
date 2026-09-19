@@ -21,8 +21,8 @@ export const AdminRoute: React.FC = () => {
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
-  if (user?.role !== "admin") {
+  const userRole = user?.role?.toLowerCase();
+  if (userRole !== "admin") {
     return <Navigate to="/products" replace />;
   }
 

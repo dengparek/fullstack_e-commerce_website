@@ -17,6 +17,8 @@ import { OrderConfirmationPage } from "../pages/OrderConfirmationPage";
 import { CustomerOrdersPage } from "../pages/CustomerOrdersPage"; // Real page import
 import { AdminProductsPage } from "../pages/AdminProductsPage";
 import { AdminCategoriesPage } from "../pages/AdminCategoriesPage";
+import { AdminUsersPage } from "../pages/AdminUsersPage";
+import { AdminOrdersPage } from "../pages/AdminOrdersPage";
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -46,7 +48,7 @@ export const AppRoutes: React.FC = () => {
         </Route>
       </Route>
 
-      {/* Authenticated admin routes (Placeholders ready for Module 8 implementation) */}
+      {/* Authenticated admin routes*/}
       <Route path="/admin" element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/products" replace />} />
@@ -54,8 +56,8 @@ export const AppRoutes: React.FC = () => {
             <Route index element={<Navigate to="/admin/products" replace />} />
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
-            <Route path="orders" element={<div>Admin Orders Page</div>} />
-            <Route path="users" element={<div>Admin Users Page</div>} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
           </Route>
         </Route>
       </Route>
