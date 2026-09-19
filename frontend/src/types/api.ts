@@ -204,6 +204,7 @@ export interface AdminUserQueryParams {
 
 export interface PaginatedResult<T> {
   items: T[];
+  products?: T[];
   pagination: {
     page: number;
     limit: number;

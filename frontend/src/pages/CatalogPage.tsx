@@ -173,7 +173,7 @@ export const CatalogPage: React.FC = () => {
             Try Again
           </button>
         </div>
-      ) : !data || data.products.length === 0 ? (
+      ) : !data || data.products?.length === 0 ? (
         <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center text-gray-500 flex flex-col items-center">
           <PackageX className="w-12 h-12 stroke-1 text-gray-400 mb-3" />
           <h3 className="text-base font-semibold text-gray-800">
@@ -188,7 +188,7 @@ export const CatalogPage: React.FC = () => {
         <>
           {/* Product Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {data.products.map((product) => (
+            {data.products?.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
