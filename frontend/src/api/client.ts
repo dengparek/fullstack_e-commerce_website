@@ -7,6 +7,9 @@ import axios from "axios";
 import type { ApiErrorResponse } from "../types/api";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+if (!BASE_URL && import.meta.env.PROD) {
+  console.error("VITE_API_BASE_URL is not defined in production environment!");
+}
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
