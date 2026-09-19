@@ -5,6 +5,17 @@ import { categoriesApi } from "../api/categories.api";
 import type { Category, Product, ProductPayload } from "../types/api";
 import axios from "axios";
 
+const initialFormState = {
+  name: "",
+  sku: "",
+  slug: "",
+  description: "",
+  price: 0,
+  stock: 0,
+  categoryId: "",
+  imageUrl: "",
+  isActive: true,
+};
 export const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -17,17 +28,7 @@ export const AdminProductsPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   // Form State
-  const [formData, setFormData] = useState<ProductPayload>({
-    name: "",
-    sku: "",
-    slug: "",
-    description: "",
-    price: 0,
-    stock: 0,
-    categoryId: "",
-    imageUrl: "",
-    isActive: true,
-  });
+  const [formData, setFormData] = useState<ProductPayload>(initialFormState);
 
   const getErrorMessage = (err: unknown, fallback: string): string => {
     if (axios.isAxiosError(err)) {
@@ -57,6 +58,15 @@ export const AdminProductsPage: React.FC = () => {
     fetchData();
   }, []);
 
+  const slugify = (text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  };
+
   const handleOpenModal = (product?: Product) => {
     if (product) {
       setEditingProduct(product);
@@ -73,17 +83,7 @@ export const AdminProductsPage: React.FC = () => {
       });
     } else {
       setEditingProduct(null);
-      setFormData({
-        name: "",
-        sku: "",
-        slug: "",
-        description: "",
-        price: 0,
-        stock: 0,
-        categoryId: categories[0]?.id || "",
-        imageUrl: "",
-        isActive: true,
-      });
+      setFormData({ ...initialFormState, categoryId: categories[0]?.id || "" });
     }
     setIsModalOpen(true);
   };
@@ -91,6 +91,7 @@ export const AdminProductsPage: React.FC = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingProduct(null);
+    setFormData(initialFormState);
   };
 
   const handleInputChange = (
@@ -102,8 +103,16 @@ export const AdminProductsPage: React.FC = () => {
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else if (name === "name" && !editingProduct) {
+      // Auto-generate slug when creating a new product
+      setFormData((prev) => ({
+        ...prev,
+        name: value,
+        slug: slugify(value),
+      }));
     } else if (name === "price" || name === "stock") {
-      setFormData((prev) => ({ ...prev, [name]: Number(value) }));
+      const numValue = value === "" ? 0 : Number(value);
+      setFormData((prev) => ({ ...prev, [name]: numValue }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -397,6 +406,22 @@ export const AdminProductsPage: React.FC = () => {
                   onChange={handleInputChange}
                   className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:border-slate-900"
                 />
+              </div>
+              <div className="flex items-center space-x-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  name="isActive"
+                  checked={formData.isActive}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                />
+                <label
+                  htmlFor="isActive"
+                  className="text-xs font-medium text-slate-700 select-none"
+                >
+                  Active (visible in public store catalog)
+                </label>
               </div>
 
               <div className="flex justify-end space-x-3 pt-3 border-t">
