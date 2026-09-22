@@ -60,22 +60,11 @@ export const ProductDetailPage: React.FC = () => {
       try {
         const response = await productsApi.getProductBySlug(slug);
 
-        // Temporary log to inspect exact structure in browser console
-        console.log("Backend Product Response:", response);
-
         if (isMounted) {
-          // Handle double-nested or direct data envelopes
-          const raw: any = response;
-          const fetchedProduct = raw?.data?.data || raw?.data || raw;
+          const rawData = response?.data as any;
+          const productData = rawData?.product || rawData;
 
-          setProduct({
-            ...fetchedProduct,
-            // Ensure price is parsed as a number even if backend returns string
-            price: Number(fetchedProduct?.price) || 0,
-            stock: Number(fetchedProduct?.stock) || 0,
-            // Map image key fallback if backend uses 'image' instead of 'imageUrl'
-            imageUrl: fetchedProduct?.imageUrl || fetchedProduct?.image || null,
-          });
+          setProduct(productData);
         }
       } catch (err: unknown) {
         if (isMounted) {
