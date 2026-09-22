@@ -16,6 +16,7 @@ const initialFormState = {
   imageUrl: "",
   isActive: true,
 };
+
 export const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -34,9 +35,9 @@ export const AdminProductsPage: React.FC = () => {
     if (axios.isAxiosError(err)) {
       return err.response?.data?.message || fallback;
     }
-
     return fallback;
   };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -104,18 +105,16 @@ export const AdminProductsPage: React.FC = () => {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else if (name === "name" && !editingProduct) {
-      // Auto-generate a fallback SKU slugified in uppercase
       const generatedSku = value
         .toUpperCase()
         .trim()
         .replace(/[^\w\s]/g, "")
         .replace(/\s+/g, "-");
-      // Auto-generate slug when creating a new product
       setFormData((prev) => ({
         ...prev,
         name: value,
         slug: slugify(value),
-        sku: prev.sku || generatedSku, // Auto-fills SKU if user hasn't typed one
+        sku: prev.sku || generatedSku,
       }));
     } else if (name === "price" || name === "stock") {
       const numValue = value === "" ? 0 : Number(value);
@@ -322,6 +321,7 @@ export const AdminProductsPage: React.FC = () => {
                   className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:border-slate-900"
                 />
               </div>
+
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">
                   SKU
@@ -414,6 +414,7 @@ export const AdminProductsPage: React.FC = () => {
                   className="w-full border border-slate-300 rounded px-3 py-2 focus:outline-none focus:border-slate-900"
                 />
               </div>
+
               <div className="flex items-center space-x-2 pt-2">
                 <input
                   type="checkbox"
