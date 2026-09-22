@@ -54,7 +54,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
         };
       }>(`${BASE_URL}/api/auth/refresh`, {}, { withCredentials: true });
 
-      const newAccessToken = response.data.data.accessToken;
+      const newAccessToken = response.data?.data?.accessToken;
 
       if (!newAccessToken) {
         throw new Error("Refresh response did not contain an access token");
