@@ -6,7 +6,9 @@ import type {
 import axios from "axios";
 import type { ApiErrorResponse } from "../types/api";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://fullstack-e-commerce-website-backend.onrender.com";
 if (!BASE_URL && import.meta.env.PROD) {
   console.error("VITE_API_BASE_URL is not defined in production environment!");
 }
