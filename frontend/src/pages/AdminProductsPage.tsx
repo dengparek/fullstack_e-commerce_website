@@ -104,11 +104,18 @@ export const AdminProductsPage: React.FC = () => {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData((prev) => ({ ...prev, [name]: checked }));
     } else if (name === "name" && !editingProduct) {
+      // Auto-generate a fallback SKU slugified in uppercase
+      const generatedSku = value
+        .toUpperCase()
+        .trim()
+        .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, "-");
       // Auto-generate slug when creating a new product
       setFormData((prev) => ({
         ...prev,
         name: value,
         slug: slugify(value),
+        sku: prev.sku || generatedSku, // Auto-fills SKU if user hasn't typed one
       }));
     } else if (name === "price" || name === "stock") {
       const numValue = value === "" ? 0 : Number(value);
