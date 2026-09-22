@@ -8,7 +8,9 @@ import type {
   User,
 } from "../types/api";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://fullstack-e-commerce-website-backend.onrender.com";
 
 export const authApi = {
   async register(payload: RegisterPayload): Promise<ApiResponse<AuthResponse>> {
