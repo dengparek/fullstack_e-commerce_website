@@ -21,6 +21,26 @@ import type {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  // Add inside AuthProvider component, right before refreshSession:
+  const extractUserData = (data: unknown): User | null => {
+    if (!data || typeof data !== "object") return null;
+    const payload = data as Record<string, unknown>;
+
+    if (payload.user && typeof payload.user === "object") {
+      return payload.user as User;
+    }
+    if (
+      payload.data &&
+      typeof payload.data === "object" &&
+      (payload.data as Record<string, unknown>).user
+    ) {
+      return (payload.data as Record<string, unknown>).user as User;
+    }
+    if ("id" in payload || "email" in payload) {
+      return payload as unknown as User;
+    }
+    return null;
+  };
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isMounted = useRef(false);
@@ -47,15 +67,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // setAccessToken(accessToken);
 
       const userResponse = await authApi.getCurrentUser();
+      const userData = extractUserData(userResponse.data);
 
-      if (!userResponse.data) {
+      if (!userData) {
         updateAccessToken(null);
         setUser(null);
         return null;
       }
-
-      setUser(userResponse.data);
-      return userResponse.data;
+      setUser(userData);
+      return userData;
     } catch {
       updateAccessToken(null);
       setUser(null);
@@ -75,13 +95,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const userResponse = await authApi.getCurrentUser();
 
-    if (!userResponse.data) {
+    const userData = extractUserData(userResponse.data);
+
+    if (!userData) {
       updateAccessToken(null);
       throw new Error("Unable to retrieve the logged-in user.");
     }
 
-    setUser(userResponse.data);
-    return userResponse.data;
+    setUser(userData);
+    return userData;
   }, []);
 
   const register = useCallback(
@@ -102,13 +124,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // const userResponse = await authApi.getCurrentUser();
 
-      if (!userResponse.data) {
+      const userData = extractUserData(userResponse.data);
+      if (!userData) {
         updateAccessToken(null);
-        throw new Error("Unable to retrieve the registered user.");
+        throw new Error("Unable to retrieve the logged-in user.");
       }
-
-      setUser(userResponse.data);
-      return userResponse.data;
+      setUser(userData);
+      return userData;
     },
     [],
   );
