@@ -27,6 +27,7 @@ export const StorefrontLayout: React.FC = () => {
     navigate("/login", { replace: true });
   };
 
+  console.log("Logged In User Payload:", user);
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Top Navigation Bar */}
