@@ -54,12 +54,12 @@ export const LoginPage: React.FC = () => {
     try {
       const user = await login({ email: email.trim().toLowerCase(), password });
       // Redirect admins to /admin/products, normal users to /products
-      if (user.role === "admin") {
-        navigate("/admin/products");
+      if (user.role.toLowerCase() === "admin") {
+        navigate("/admin/products", { replace: true });
       } else {
-        navigate("/products");
+        // navigate("/products");
+        navigate(from, { replace: true });
       }
-      navigate(from, { replace: true });
     } catch (err: unknown) {
       setApiError(parseApiError(err));
     } finally {
