@@ -42,12 +42,10 @@ export const ProductDetailPage: React.FC = () => {
       console.error("Failed adding to cart:", err);
     }
   };
-
   useEffect(() => {
     let isMounted = true;
 
     const fetchProduct = async () => {
-      // FIX 1: If slug is missing (invalid route parameter), stop loading and display 404 UI
       if (!slug) {
         if (isMounted) {
           setError("No product identifier provided in the URL.");
@@ -56,25 +54,28 @@ export const ProductDetailPage: React.FC = () => {
         return;
       }
 
-      // FIX 2: Wait until global authentication initialization completes
-      // if (isAuthLoading) {
-      //   return;
-      // }
-
       setIsLoading(true);
       setError(null);
 
       try {
         const response = await productsApi.getProductBySlug(slug);
-        if (isMounted) {
-          // Fix: Properly extract product payload from ApiResponse envelope
-          const rawData = response as unknown as { data?: Product } | Product;
-          const productData =
-            "data" in rawData && rawData.data
-              ? rawData.data
-              : (rawData as Product);
 
-          setProduct(productData);
+        // Temporary log to inspect exact structure in browser console
+        console.log("Backend Product Response:", response);
+
+        if (isMounted) {
+          // Handle double-nested or direct data envelopes
+          const raw: any = response;
+          const fetchedProduct = raw?.data?.data || raw?.data || raw;
+
+          setProduct({
+            ...fetchedProduct,
+            // Ensure price is parsed as a number even if backend returns string
+            price: Number(fetchedProduct?.price) || 0,
+            stock: Number(fetchedProduct?.stock) || 0,
+            // Map image key fallback if backend uses 'image' instead of 'imageUrl'
+            imageUrl: fetchedProduct?.imageUrl || fetchedProduct?.image || null,
+          });
         }
       } catch (err: unknown) {
         if (isMounted) {
