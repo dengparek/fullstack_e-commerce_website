@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       return null;
     }
-  }, []);
+  }, [updateAccessToken]);
 
   const login = useCallback(async (payload: LoginPayload): Promise<User> => {
     const response = await authApi.login(payload);

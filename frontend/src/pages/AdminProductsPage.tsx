@@ -42,19 +42,34 @@ export const AdminProductsPage: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
+
       const [productsRes, categoriesRes] = await Promise.all([
         productsApi.getProducts(),
         categoriesApi.getCategories(),
       ]);
-      setProducts(productsRes.data.items || []);
-      setCategories(categoriesRes.data);
+
+      // productsRes is response.data -> { success, data: { items: [...], products: [...] } }
+      const paginatedData = productsRes?.data;
+
+      let productList: Product[] = [];
+      if (Array.isArray(paginatedData)) {
+        productList = paginatedData;
+      } else if (paginatedData) {
+        productList = paginatedData.items || paginatedData.products || [];
+      }
+
+      // categoriesRes is response.data -> { success, data: Category[] } or Category[] directly
+      const categoryData = categoriesRes?.data ?? categoriesRes;
+      const categoryList = Array.isArray(categoryData) ? categoryData : [];
+
+      setProducts(productList);
+      setCategories(categoryList);
     } catch (err: unknown) {
       setError(getErrorMessage(err, "Failed to fetch data"));
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchData();
   }, []);
