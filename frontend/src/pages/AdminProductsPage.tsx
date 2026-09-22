@@ -270,7 +270,7 @@ export const AdminProductsPage: React.FC = () => {
           aria-labelledby="product-modal-title"
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
         >
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 space-y-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b pb-3">
               <h3
                 id="product-modal-title"
