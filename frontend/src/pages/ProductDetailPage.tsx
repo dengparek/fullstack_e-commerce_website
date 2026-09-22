@@ -67,7 +67,9 @@ export const ProductDetailPage: React.FC = () => {
       try {
         const response = await productsApi.getProductBySlug(slug);
         if (isMounted) {
-          setProduct(response.data);
+          // Safely extract product payload from ApiResponse envelope
+          const productData = response?.data ?? response;
+          setProduct(productData);
         }
       } catch (err: unknown) {
         if (isMounted) {
