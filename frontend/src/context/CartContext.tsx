@@ -67,16 +67,9 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       return;
     }
 
-    const rawProduct =
-      (product as any)?.product?.product ||
-      (product as any)?.product ||
-      (product as any)?.data ||
-      product;
+    const rawProduct = (product as any)?.product || product;
     const targetId =
-      rawProduct?.id ||
-      rawProduct?.productId ||
-      rawProduct?.product_id ||
-      rawProduct?._id;
+      rawProduct?.id || rawProduct?.productId || rawProduct?.product_id;
     const payload = {
       productId: targetId,
       quantity: Number(quantity) || 1,

@@ -7,7 +7,7 @@ const cartQuantitySchema = z.coerce
   .max(100, "Quantity cannot exceed 100");
 
 export const addCartItemSchema = z.object({
-  productId: z.uuid("Invalid product ID"),
+  productId: z.string().uuid("Invalid product ID"),
   quantity: cartQuantitySchema,
 });
 
