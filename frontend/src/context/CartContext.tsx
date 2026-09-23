@@ -78,10 +78,17 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
           product.id,
         ),
     });
+
+    const rawPrice = rawProduct?.price;
+    const numericPrice =
+      typeof rawPrice === "string"
+        ? parseFloat(rawPrice)
+        : Number(rawPrice) || 0;
     try {
       await cartApi.addItem({
         productId: targetId,
         quantity: Number(quantity),
+        price: numericPrice,
       });
       await refreshCart();
       openDrawer();
