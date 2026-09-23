@@ -83,10 +83,6 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       await refreshCart();
       openDrawer();
     } catch (err) {
-      console.log(
-        "📦 Full Raw Product Object:",
-        JSON.stringify(product, null, 2),
-      );
       if (axios.isAxiosError(err)) {
         console.log("❌ SERVER ERROR RESPONSE:", err.response?.data);
         console.log("❌ HTTP STATUS CODE:", err.response?.status);
