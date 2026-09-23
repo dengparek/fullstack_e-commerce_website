@@ -55,6 +55,8 @@ export const addItem = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
+    console.log("📥 SERVER RECEIVED BODY:", req.body);
+    console.log("📥 TYPE OF BODY:", typeof req.body);
     const userId = getAuthUserId(req);
     const input = addCartItemSchema.parse(req.body);
 
