@@ -16,7 +16,7 @@ export const updateCartItemSchema = z.object({
 });
 
 export const cartItemProductIdParamSchema = z.object({
-  productId: z.uuid("Invalid product ID"),
+  productId: z.string().uuid("Invalid product ID"),
 });
 
 // Inferred Types
