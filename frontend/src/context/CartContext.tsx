@@ -70,26 +70,10 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
     const rawProduct = (product as any)?.product || product;
     const targetId =
       rawProduct?.id || rawProduct?.product_id || rawProduct?._id;
-    // console.log("🔍 Product ID being sent:", {
-    //   id: product.id,
-    //   type: typeof product.id,
-    //   isValidUuid:
-    //     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-    //       product.id,
-    //     ),
-    // });
-
-    const rawPrice = rawProduct?.price;
-    const numericPrice =
-      typeof rawPrice === "string"
-        ? parseFloat(rawPrice)
-        : Number(rawPrice) || 0;
 
     const payload = {
       productId: targetId,
-      product_id: targetId, // Fallback for snake_case backend schema
       quantity: Number(quantity) || 1,
-      price: numericPrice,
     };
 
     console.log("📤 OUTGOING CART PAYLOAD:", payload);

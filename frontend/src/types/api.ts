@@ -139,7 +139,6 @@ export interface Cart {
 export interface AddToCartPayload {
   productId: string;
   quantity: number;
-  price: number;
 }
 
 export interface UpdateCartItemPayload {
