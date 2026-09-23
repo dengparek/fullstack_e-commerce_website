@@ -9,6 +9,7 @@ const cartQuantitySchema = z.coerce
 export const addCartItemSchema = z.object({
   productId: z.uuid("Invalid product ID"),
   quantity: cartQuantitySchema,
+  price: z.number(),
 });
 
 export const updateCartItemSchema = z.object({
