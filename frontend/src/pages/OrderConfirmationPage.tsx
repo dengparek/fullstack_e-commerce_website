@@ -63,6 +63,23 @@ export const OrderConfirmationPage: React.FC = () => {
       </div>
     );
   }
+  let shippingAddress: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
+
+  try {
+    shippingAddress = JSON.parse(order.shippingAddress);
+  } catch {
+    shippingAddress = {
+      street: order.shippingAddress,
+      city: "",
+      postalCode: "",
+      country: "",
+    };
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
@@ -102,30 +119,56 @@ export const OrderConfirmationPage: React.FC = () => {
         </div>
 
         <div>
-          <span className="text-slate-500 block text-xs mb-1">
+          <span className="text-slate-500 block text-xs mb-2">
             Shipping Address
           </span>
 
-          <p className="text-sm text-slate-800">{order.shippingAddress}</p>
-        </div>
+          <div className="text-sm text-slate-800 space-y-1">
+            <p>
+              <span className="font-medium">Name:</span> {order.shippingName}
+            </p>
 
+            <p>
+              <span className="font-medium">Phone:</span> {order.shippingPhone}
+            </p>
+
+            <p>
+              <span className="font-medium">Street:</span>{" "}
+              {shippingAddress.street}
+            </p>
+
+            <p>
+              <span className="font-medium">City:</span> {shippingAddress.city}
+            </p>
+
+            <p>
+              <span className="font-medium">Postal Code:</span>{" "}
+              {shippingAddress.postalCode}
+            </p>
+
+            <p>
+              <span className="font-medium">Country:</span>{" "}
+              {shippingAddress.country}
+            </p>
+          </div>
+        </div>
         <div>
           <span className="text-slate-500 block text-xs mb-2">
             Items Purchased
           </span>
           <div className="divide-y divide-slate-200 border-t border-b border-slate-200 py-2">
-            {order.orderItems?.length ? (
-              order.orderItems.map((item) => (
+            {order.items?.length ? (
+              order.items.map((item) => (
                 <div
                   key={item.id}
                   className="py-2 flex justify-between text-sm"
                 >
                   <span className="text-slate-800">
-                    {item.product?.name || "Product"} (x{item.quantity})
+                    {item.productName} (x{item.quantity})
                   </span>
 
                   <span className="font-medium text-slate-900">
-                    {formatCurrency(Number(item.price) * item.quantity)}
+                    {formatCurrency(Number(item.subtotal))}
                   </span>
                 </div>
               ))

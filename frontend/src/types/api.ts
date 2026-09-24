@@ -155,35 +155,29 @@ export type OrderStatus =
 
 export interface OrderItem {
   id: string;
+  orderId: string;
   productId: string;
   productName: string;
-  price: number;
+  unitPrice: number | string;
   quantity: number;
+  subtotal: number | string;
 }
 
 export interface Order {
   id: string;
-  user?: {
-    id: string;
-    email: string;
-    name?: string;
-  };
-  items: OrderItem[];
-  totalAmount: number;
+  orderNumber: string;
+  userId: string;
   status: OrderStatus;
+  Status: OrderStatus;
+  subtotal: number | string;
+  shippingAmount: number | string;
+  totalAmount: number | string;
+  shippingName: string;
+  shippingPhone: string;
   shippingAddress: string;
   createdAt: string;
   updatedAt: string;
-  orderItems: Array<{
-    id: string;
-    productId: string;
-    quantity: number;
-    price: number;
-    product?: {
-      name: string;
-      imageUrl?: string;
-    };
-  }>;
+  items: OrderItem[];
 }
 
 export interface CreateOrderPayload {
