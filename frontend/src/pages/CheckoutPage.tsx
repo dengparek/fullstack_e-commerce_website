@@ -71,9 +71,9 @@ export const CheckoutPage: React.FC = () => {
         })),
       };
 
-      const newOrder = await ordersApi.createOrder(orderPayload);
+      const response = await ordersApi.createOrder(orderPayload);
       clearCart();
-      navigate(`/orders/${newOrder.id}/confirmation`);
+      navigate(`/orders/${response.data.id}/confirmation`);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         setError(
