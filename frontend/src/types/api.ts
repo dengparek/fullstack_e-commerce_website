@@ -167,6 +167,11 @@ export interface Order {
   id: string;
   orderNumber: string;
   userId: string;
+  user?: {
+    id: string;
+    email: string;
+    name?: string;
+  };
   status: OrderStatus;
   Status: OrderStatus;
   subtotal: number | string;
