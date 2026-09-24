@@ -188,6 +188,8 @@ export interface Order {
 
 export interface CreateOrderPayload {
   shippingAddress: string;
+  shippingPhone: string;
+  shippingName: string;
   items: {
     productId: string;
     quantity: number;

@@ -18,6 +18,15 @@ export const CheckoutPage: React.FC = () => {
     country: "",
   });
 
+  const cleanedAddress = {
+    street: shippingAddress.street.trim(),
+    shippingName: shippingAddress.shippingName.trim(),
+    shippingPhone: shippingAddress.shippingPhone,
+    city: shippingAddress.city.trim(),
+    postalCode: shippingAddress.postalCode.trim(),
+    country: shippingAddress.country.trim(),
+  };
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,14 +42,14 @@ export const CheckoutPage: React.FC = () => {
     e.preventDefault();
     if (items.length === 0) return;
 
-    const cleanedAddress = {
-      street: shippingAddress.street.trim(),
-      shippingName: shippingAddress.shippingName.trim(),
-      shippingPhone: shippingAddress.shippingPhone,
-      city: shippingAddress.city.trim(),
-      postalCode: shippingAddress.postalCode.trim(),
-      country: shippingAddress.country.trim(),
-    };
+    // const cleanedAddress = {
+    //   street: shippingAddress.street.trim(),
+    //   shippingName: shippingAddress.shippingName.trim(),
+    //   shippingPhone: shippingAddress.shippingPhone,
+    //   city: shippingAddress.city.trim(),
+    //   postalCode: shippingAddress.postalCode.trim(),
+    //   country: shippingAddress.country.trim(),
+    // };
 
     if (Object.values(cleanedAddress).some((value) => !value)) {
       setError("Please complete all shipping address fields.");
@@ -52,6 +61,8 @@ export const CheckoutPage: React.FC = () => {
       setError(null);
 
       const orderPayload: CreateOrderPayload = {
+        shippingName: cleanedAddress.shippingName,
+        shippingPhone: cleanedAddress.shippingPhone,
         shippingAddress: JSON.stringify(shippingAddress),
         items: items.map((item) => ({
           productId: item.productId,
@@ -118,7 +129,7 @@ export const CheckoutPage: React.FC = () => {
               type="text"
               name="street"
               required
-              value={shippingAddress.street}
+              value={cleanedAddress.street}
               onChange={handleInputChange}
               className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
             />
@@ -133,7 +144,7 @@ export const CheckoutPage: React.FC = () => {
                 type="text"
                 name="city"
                 required
-                value={shippingAddress.city}
+                value={cleanedAddress.city}
                 onChange={handleInputChange}
                 className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
               />
@@ -146,7 +157,7 @@ export const CheckoutPage: React.FC = () => {
                 type="text"
                 name="postalCode"
                 required
-                value={shippingAddress.postalCode}
+                value={cleanedAddress.postalCode}
                 onChange={handleInputChange}
                 className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
               />
@@ -162,7 +173,7 @@ export const CheckoutPage: React.FC = () => {
                 type="text"
                 name="shippingPhone"
                 required
-                value={shippingAddress.shippingPhone}
+                value={cleanedAddress.shippingPhone}
                 onChange={handleInputChange}
                 className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
               />
@@ -175,7 +186,7 @@ export const CheckoutPage: React.FC = () => {
                 type="text"
                 name="shippingName"
                 required
-                value={shippingAddress.shippingName}
+                value={cleanedAddress.shippingName}
                 onChange={handleInputChange}
                 className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
               />
@@ -190,7 +201,7 @@ export const CheckoutPage: React.FC = () => {
               type="text"
               name="country"
               required
-              value={shippingAddress.country}
+              value={cleanedAddress.country}
               onChange={handleInputChange}
               className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
             />
