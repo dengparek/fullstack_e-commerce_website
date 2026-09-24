@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import { CartDrawer } from "../components/carts/CartDrawer";
+// import { CartDrawer } from "../components/carts/CartDrawer";
 import {
   ShoppingBag,
   User,
@@ -98,8 +98,8 @@ export const StorefrontLayout: React.FC = () => {
                   </span>
                 )}
               </button>
-              {/* Drawer rendered outside the button */}
-              <CartDrawer />
+              {/* Drawer rendered outside the button
+              <CartDrawer /> */}
 
               <div className="hidden md:block h-6 w-px bg-gray-200" />
 
@@ -225,14 +225,12 @@ export const StorefrontLayout: React.FC = () => {
           </div>
         )}
       </header>
-
       {/* Main Page Content Container */}
       <main className="flex-1">
         <Outlet />
       </main>
-
-      {/* Cart Drawer Component */}
-      <CartDrawer />
+      {/* Cart Drawer Component
+      <CartDrawer /> */}
     </div>
   );
 };

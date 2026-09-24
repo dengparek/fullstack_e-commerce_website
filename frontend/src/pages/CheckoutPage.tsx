@@ -42,15 +42,6 @@ export const CheckoutPage: React.FC = () => {
     e.preventDefault();
     if (items.length === 0) return;
 
-    // const cleanedAddress = {
-    //   street: shippingAddress.street.trim(),
-    //   shippingName: shippingAddress.shippingName.trim(),
-    //   shippingPhone: shippingAddress.shippingPhone,
-    //   city: shippingAddress.city.trim(),
-    //   postalCode: shippingAddress.postalCode.trim(),
-    //   country: shippingAddress.country.trim(),
-    // };
-
     if (Object.values(cleanedAddress).some((value) => !value)) {
       setError("Please complete all shipping address fields.");
       return;

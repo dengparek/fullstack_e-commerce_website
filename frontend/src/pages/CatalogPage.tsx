@@ -192,7 +192,7 @@ export const CatalogPage: React.FC = () => {
               <ProductCard
                 key={product.id}
                 product={product}
-                onAddToCart={(prod) => console.log("Add to cart:", prod)}
+                // onAddToCart={(prod) => console.log("Add to cart:", prod)}
               />
             ))}
           </div>
