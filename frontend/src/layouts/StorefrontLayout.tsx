@@ -70,9 +70,9 @@ export const StorefrontLayout: React.FC = () => {
               )}
 
               {/* Admin Portal Shortcut for Admin Users */}
-              {user?.role === "admin" && (
+              {user?.role?.toLowerCase() === "admin" && (
                 <Link
-                  to="/admin"
+                  to="/admin/products"
                   className="text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full flex items-center gap-1 hover:bg-amber-100 transition"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />
@@ -177,9 +177,9 @@ export const StorefrontLayout: React.FC = () => {
                   My Orders
                 </Link>
 
-                {user?.role === "admin" && (
+                {user?.role?.toLowerCase() === "admin" && (
                   <Link
-                    to="/admin"
+                    to="/admin/products"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block py-2 text-sm font-semibold text-amber-700"
                   >

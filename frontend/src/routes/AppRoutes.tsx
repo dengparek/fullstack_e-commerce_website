@@ -52,13 +52,10 @@ export const AppRoutes: React.FC = () => {
       <Route path="/admin" element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/products" replace />} />
-          <Route element={<AdminLayout />}>
-            <Route index element={<Navigate to="/admin/products" replace />} />
-            <Route path="products" element={<AdminProductsPage />} />
-            <Route path="categories" element={<AdminCategoriesPage />} />
-            <Route path="orders" element={<AdminOrdersPage />} />
-            <Route path="users" element={<AdminUsersPage />} />
-          </Route>
+          <Route path="products" element={<AdminProductsPage />} />
+          <Route path="categories" element={<AdminCategoriesPage />} />
+          <Route path="orders" element={<AdminOrdersPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
         </Route>
       </Route>
 
