@@ -11,7 +11,10 @@ export const CheckoutPage: React.FC = () => {
   const [shippingAddress, setShippingAddress] = useState({
     street: "",
     city: "",
+    shippingPhone: "",
+    shippingName: "",
     postalCode: "",
+
     country: "",
   });
 
@@ -26,12 +29,14 @@ export const CheckoutPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = async (e: React.ChangeEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (items.length === 0) return;
 
     const cleanedAddress = {
       street: shippingAddress.street.trim(),
+      shippingName: shippingAddress.shippingName.trim(),
+      shippingPhone: shippingAddress.shippingPhone,
       city: shippingAddress.city.trim(),
       postalCode: shippingAddress.postalCode.trim(),
       country: shippingAddress.country.trim(),
@@ -142,6 +147,35 @@ export const CheckoutPage: React.FC = () => {
                 name="postalCode"
                 required
                 value={shippingAddress.postalCode}
+                onChange={handleInputChange}
+                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                name="city"
+                required
+                value={shippingAddress.shippingPhone}
+                onChange={handleInputChange}
+                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Shipping Name
+              </label>
+              <input
+                type="text"
+                name="postalCode"
+                required
+                value={shippingAddress.shippingName}
                 onChange={handleInputChange}
                 className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-slate-900"
               />
