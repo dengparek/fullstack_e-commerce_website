@@ -17,7 +17,7 @@ export const cartApi = {
     const response = await apiClient.post<ApiResponse<Cart>>(
       "/api/cart/items",
       {
-        product_id: payload.productId,
+        productId: payload.productId,
         quantity: Number(payload.quantity),
       },
     );
