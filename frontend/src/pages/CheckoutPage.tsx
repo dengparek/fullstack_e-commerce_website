@@ -160,7 +160,7 @@ export const CheckoutPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                name="city"
+                name="shippingPhone"
                 required
                 value={shippingAddress.shippingPhone}
                 onChange={handleInputChange}
@@ -173,7 +173,7 @@ export const CheckoutPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                name="postalCode"
+                name="shippingName"
                 required
                 value={shippingAddress.shippingName}
                 onChange={handleInputChange}
