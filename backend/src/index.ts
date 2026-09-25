@@ -15,6 +15,11 @@ import orderRouter from "./routes/order.routes";
 import adminOrderRouter from "./routes/admin-order.routes";
 import categoryRouter from "./routes/category.routes";
 import adminUserRouter from "./routes/admin-user.routes";
+import {
+  httpRequestDuration,
+  httpRequestsTotal,
+  metricsRegistry,
+} from "./prometheus/metrics";
 
 export const app = express();
 
@@ -49,6 +54,42 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  const isMetricsEndpoint = req.path === "/metrics";
+
+  if (isMetricsEndpoint) {
+    return next();
+  }
+
+  const start = process.hrtime.bigint();
+
+  res.on("finish", () => {
+    const duration = Number(process.hrtime.bigint() - start) / 1_000_000_000;
+
+    // const route = req.route?.path || req.path;
+    const route = req.route ? `${req.baseUrl}${req.route.path}` : "unknown";
+
+    const statusCode = res.statusCode.toString();
+
+    httpRequestsTotal.inc({
+      method: req.method,
+      route,
+      status_code: statusCode,
+    });
+
+    httpRequestDuration.observe(
+      {
+        method: req.method,
+        route,
+        status_code: statusCode,
+      },
+      duration,
+    );
+  });
+
+  next();
+});
+
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/products", productRouter);
@@ -58,6 +99,40 @@ app.use("/api/admin/orders", adminOrderRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/admin/users", adminUserRouter);
 
+app.use((req, res, next) => {
+  // Do not count Prometheus scraping its own metrics endpoint.
+  if (req.path === "/metrics") {
+    return next();
+  }
+
+  const start = process.hrtime.bigint();
+
+  res.on("finish", () => {
+    const duration = Number(process.hrtime.bigint() - start) / 1_000_000_000;
+
+    const route = req.route ? `${req.baseUrl}${req.route.path}` : "unknown";
+
+    const statusCode = res.statusCode.toString();
+
+    httpRequestsTotal.inc({
+      method: req.method,
+      route,
+      status_code: statusCode,
+    });
+
+    httpRequestDuration.observe(
+      {
+        method: req.method,
+        route,
+        status_code: statusCode,
+      },
+      duration,
+    );
+  });
+
+  next();
+});
+
 // Health Check Endpoint
 app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({
@@ -66,6 +141,12 @@ app.get("/health", (_req: Request, res: Response) => {
     environment: NODE_ENV,
     timestamp: new Date().toISOString(),
   });
+});
+
+// Prometheus Metrics Endpoint
+app.get("/metrics", async (_req: Request, res: Response) => {
+  res.set("Content-Type", metricsRegistry.contentType);
+  res.end(await metricsRegistry.metrics());
 });
 
 // 404 Fallback Handler
