@@ -3,19 +3,7 @@ import { adminApi } from "../api/admin.api";
 import { productsApi } from "../api/products.api";
 import { categoriesApi } from "../api/categories.api";
 import type { Category, Product, ProductPayload } from "../types/api";
-import axios from "axios";
-
-const initialFormState = {
-  name: "",
-  sku: "",
-  slug: "",
-  description: "",
-  price: 0,
-  stock: 0,
-  categoryId: "",
-  imageUrl: "",
-  isActive: true,
-};
+import { getErrorMessage, initialFormState, slugify } from "../utils/helpers";
 
 export const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,13 +18,6 @@ export const AdminProductsPage: React.FC = () => {
 
   // Form State
   const [formData, setFormData] = useState<ProductPayload>(initialFormState);
-
-  const getErrorMessage = (err: unknown, fallback: string): string => {
-    if (axios.isAxiosError(err)) {
-      return err.response?.data?.message || fallback;
-    }
-    return fallback;
-  };
 
   const fetchData = async () => {
     try {
@@ -73,15 +54,6 @@ export const AdminProductsPage: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const slugify = (text: string) => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  };
 
   const handleOpenModal = (product?: Product) => {
     if (product) {
@@ -139,7 +111,7 @@ export const AdminProductsPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
     try {
       if (formData.price < 0 || formData.stock < 0) {

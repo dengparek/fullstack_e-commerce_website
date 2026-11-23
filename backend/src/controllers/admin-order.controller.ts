@@ -58,6 +58,7 @@ export const getById = async (
 
     res.status(200).json({
       success: true,
+      Message: "Order retrieved successfully",
       data: order,
     });
   } catch (error) {
@@ -85,7 +86,7 @@ export const updateStatus = async (
       message: "Order status updated successfully",
       data: updatedOrder,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     next(error);
   }
 };

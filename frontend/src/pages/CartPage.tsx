@@ -10,7 +10,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { useCart } from "../context/CartContext";
-import { formatCurrency } from "../utils/formatters";
+import { formatCurrency } from "../utils/helpers";
 
 export const CartPage: React.FC = () => {
   const { items, itemCount, subtotal, updateQuantity, removeItem, clearCart } =

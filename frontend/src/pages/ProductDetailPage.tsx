@@ -4,7 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import { productsApi } from "../api/products.api";
 import type { Product } from "../types/api";
 import { useCart } from "../context/CartContext";
-// import { useAuth } from "../context/AuthContext";
+
 import {
   ShoppingBag,
   ArrowLeft,
@@ -17,7 +17,7 @@ import {
   Plus,
 } from "lucide-react";
 import { parseApiError } from "../api/client";
-import { formatCurrency } from "../utils/formatters";
+import { formatCurrency } from "../utils/helpers";
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

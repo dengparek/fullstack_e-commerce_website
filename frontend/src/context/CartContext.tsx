@@ -75,7 +75,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       quantity: Number(quantity) || 1,
     };
 
-    console.log("📤 OUTGOING CART PAYLOAD:", payload);
+    console.log("OUTGOING CART PAYLOAD:", payload);
 
     try {
       await cartApi.addItem(payload);
@@ -83,8 +83,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
       openDrawer();
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        console.log("❌ SERVER ERROR RESPONSE:", err.response?.data);
-        console.log("❌ HTTP STATUS CODE:", err.response?.status);
+        console.log("SERVER ERROR RESPONSE:", err.response?.data);
+        console.log("HTTP STATUS CODE:", err.response?.status);
       } else {
         console.error("Unexpected error:", err);
       }

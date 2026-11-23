@@ -99,6 +99,11 @@ export interface Product {
   updatedAt: string;
 }
 
+export interface CategoryFilterProps {
+  selectedCategoryId?: string;
+  onSelectCategory: (categoryId?: string) => void;
+}
+
 export interface ProductPayload {
   name: string;
   sku: string;

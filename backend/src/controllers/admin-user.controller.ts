@@ -11,21 +11,7 @@ import {
   getAdminUserById,
   updateAdminUser,
 } from "../services/admin-user.service";
-
-// Extend Request type to include authenticated admin user
-// interface AuthenticatedRequest extends Request {
-//   user?: {
-//     id: string;
-//     role: string;
-//   };
-// }
-
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    role: "customer" | "admin"; // Changed from string to literal union
-  };
-}
+import { AuthenticatedRequest } from "../types/auth";
 
 export const handleGetAdminUsers = async (
   req: Request,

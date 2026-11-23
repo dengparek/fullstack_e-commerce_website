@@ -1,5 +1,6 @@
 import type { users } from "../database/schema/users";
 import { orders } from "../database/schema/orders";
+import { Request } from "express";
 
 // Reuse role type directly from Drizzle schema definition
 export type UserRole = typeof users.$inferSelect.role;
@@ -108,4 +109,11 @@ export interface UpdateCategoryInput {
   description?: string | null | undefined;
   parentId?: string | null | undefined;
   isActive?: boolean | undefined;
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    role: "customer" | "admin"; // Changed from string to literal union
+  };
 }

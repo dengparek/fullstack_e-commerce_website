@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ordersApi } from "../api/orders.api";
 import type { Order } from "../types/api";
 import axios from "axios";
-import { formatCurrency } from "../utils/formatters";
+import { formatCurrency } from "../utils/helpers";
 
 export const OrderConfirmationPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

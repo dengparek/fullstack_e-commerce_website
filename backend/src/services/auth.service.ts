@@ -28,6 +28,7 @@ export const registerUser = async (
 
   // 1. Existence check (Fast-path error reporting)
   const [existingUser] = await db
+
     .select({ id: users.id })
     .from(users)
     .where(eq(users.email, normalizedEmail))

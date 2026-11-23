@@ -32,6 +32,12 @@ export const register = async (
 
   try {
     const result = await registerUser(validationResult.data);
+    if (!result) {
+      res.status(400).json({
+        success: false,
+        message: "Falied to register User",
+      });
+    }
 
     res.status(201).json({
       success: true,

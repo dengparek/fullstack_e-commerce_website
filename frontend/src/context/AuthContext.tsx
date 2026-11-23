@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       // FIX 1: Set token in memory FIRST so getCurrentUser carries the Bearer header
-      // setAccessToken(accessToken);
+      setAccessToken(accessToken);
 
       const userResponse = await authApi.getCurrentUser();
       const userData = extractUserData(userResponse.data);

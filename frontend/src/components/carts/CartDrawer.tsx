@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { X, ShoppingBag, Trash2, Plus, Minus, ArrowRight } from "lucide-react";
 import { useCart } from "../../context/CartContext";
-import { formatCurrency } from "../../utils/formatters";
+import { formatCurrency } from "../../utils/helpers";
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -61,7 +61,7 @@ export const CartDrawer: React.FC = () => {
                   onClick={closeDrawer}
                   className="mt-6 text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition cursor-pointer"
                 >
-                  Continue Shopping &rarr;
+                  Continue Shopping
                 </button>
               </div>
             ) : (

@@ -1,13 +1,8 @@
 // src/components/categories/CategoryFilter.tsx
 import React, { useEffect, useState } from "react";
 import { categoriesApi } from "../../api/categories.api";
-import type { Category } from "../../types/api";
+import type { Category, CategoryFilterProps } from "../../types/api";
 import { clsx } from "clsx";
-
-interface CategoryFilterProps {
-  selectedCategoryId?: string;
-  onSelectCategory: (categoryId?: string) => void;
-}
 
 export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategoryId,

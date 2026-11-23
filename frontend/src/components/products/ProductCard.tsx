@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Tag } from "lucide-react";
 import type { ProductCardProps } from "../../types/api";
-import { formatCurrency } from "../../utils/formatters";
+import { formatCurrency } from "../../utils/helpers";
 import { useCart } from "../../context/CartContext";
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
