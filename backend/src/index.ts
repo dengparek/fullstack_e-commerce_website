@@ -20,7 +20,6 @@ import {
   metricsRegistry,
 } from "./prometheus/metrics";
 import { startServer } from "./server";
-import { prometheusConfig } from "./prometheus";
 
 export const app = express();
 
@@ -54,8 +53,6 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-prometheusConfig();
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
